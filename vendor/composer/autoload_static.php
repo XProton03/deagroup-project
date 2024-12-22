@@ -39,15 +39,15 @@ class ComposerStaticInit36b7ee5f0e25f34a1627452ab111b728
         '58571171fd5812e6e447dce228f52f4d' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Support/helpers.php',
         '9e4824c5afbdc1482b6025ce3d4dfde8' => __DIR__ . '/..' . '/league/csv/src/functions_include.php',
         '6124b4c8570aa390c21fafd04a26c69f' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/deep_copy.php',
-        'ec07570ca5a812141189b1fa81503674' => __DIR__ . '/..' . '/phpunit/phpunit/src/Framework/Assert/Functions.php',
         '9261e07cd92c53dcc971c7c88c176c04' => __DIR__ . '/..' . '/danharrin/date-format-converter/src/helpers.php',
         '9720327d09ed9a4ba00c9b5071b71c7d' => __DIR__ . '/..' . '/danharrin/date-format-converter/src/standards.php',
+        'ec07570ca5a812141189b1fa81503674' => __DIR__ . '/..' . '/phpunit/phpunit/src/Framework/Assert/Functions.php',
         '2ad94ea6f6f6013119e9abcf4e302a08' => __DIR__ . '/..' . '/filament/forms/src/helpers.php',
         'b69d5f1f95cd1ed438c038b6cbcc45b5' => __DIR__ . '/..' . '/filament/notifications/src/Testing/Autoload.php',
-        'a1cfe24d14977df6878b9bf804af2d1c' => __DIR__ . '/..' . '/nunomaduro/collision/src/Adapters/Phpunit/Autoload.php',
-        'aadac1114cab8dc19489a7f6dc24c003' => __DIR__ . '/..' . '/pestphp/pest-plugin-arch/src/Autoload.php',
         '89e9938b64b06cc502d7ceca69a380fe' => __DIR__ . '/..' . '/filament/filament/src/global_helpers.php',
         'ebb446bb6d02e998480945fbbb73dc64' => __DIR__ . '/..' . '/filament/filament/src/helpers.php',
+        'a1cfe24d14977df6878b9bf804af2d1c' => __DIR__ . '/..' . '/nunomaduro/collision/src/Adapters/Phpunit/Autoload.php',
+        'aadac1114cab8dc19489a7f6dc24c003' => __DIR__ . '/..' . '/pestphp/pest-plugin-arch/src/Autoload.php',
         'f83ed111c2f97a0449abf067f157f418' => __DIR__ . '/..' . '/pestphp/pest/src/Functions.php',
         '7d2876738dc0328edeb8a103c76cd8e7' => __DIR__ . '/..' . '/pestphp/pest/src/Pest.php',
         '801c31d8ed748cfa537fa45402288c95' => __DIR__ . '/..' . '/psy/psysh/src/functions.php',
@@ -178,7 +178,11 @@ class ComposerStaticInit36b7ee5f0e25f34a1627452ab111b728
         ),
         'J' => 
         array (
+            'Joaopaulolndev\\FilamentEditProfile\\Database\\Factories\\' => 54,
+            'Joaopaulolndev\\FilamentEditProfile\\' => 35,
+            'Jenssegers\\Agent\\' => 17,
             'Jean85\\' => 7,
+            'Jaybizzle\\CrawlerDetect\\' => 24,
         ),
         'I' => 
         array (
@@ -579,9 +583,25 @@ class ComposerStaticInit36b7ee5f0e25f34a1627452ab111b728
         array (
             0 => __DIR__ . '/..' . '/kirschbaum-development/eloquent-power-joins/src',
         ),
+        'Joaopaulolndev\\FilamentEditProfile\\Database\\Factories\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/database/factories',
+        ),
+        'Joaopaulolndev\\FilamentEditProfile\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/src',
+        ),
+        'Jenssegers\\Agent\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/jenssegers/agent/src',
+        ),
         'Jean85\\' => 
         array (
             0 => __DIR__ . '/..' . '/jean85/pretty-package-versions/src',
+        ),
+        'Jaybizzle\\CrawlerDetect\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/jaybizzle/crawler-detect/src',
         ),
         'Illuminate\\Support\\' => 
         array (
@@ -750,6 +770,16 @@ class ComposerStaticInit36b7ee5f0e25f34a1627452ab111b728
         ),
     );
 
+    public static $prefixesPsr0 = array (
+        'D' => 
+        array (
+            'Detection' => 
+            array (
+                0 => __DIR__ . '/..' . '/mobiledetect/mobiledetectlib/namespaced',
+            ),
+        ),
+    );
+
     public static $classMap = array (
         'AnourValar\\EloquentSerialize\\Facades\\EloquentSerializeFacade' => __DIR__ . '/..' . '/anourvalar/eloquent-serialize/src/Facades/EloquentSerializeFacade.php',
         'AnourValar\\EloquentSerialize\\Grammars\\EloquentBuilderGrammar' => __DIR__ . '/..' . '/anourvalar/eloquent-serialize/src/Grammars/EloquentBuilderGrammar.php',
@@ -763,6 +793,8 @@ class ComposerStaticInit36b7ee5f0e25f34a1627452ab111b728
         'App\\Filament\\Resources\\UserResource\\Pages\\ListUsers' => __DIR__ . '/../..' . '/app/Filament/Resources/UserResource/Pages/ListUsers.php',
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
         'App\\Models\\User' => __DIR__ . '/../..' . '/app/Models/User.php',
+        'App\\Policies\\RolePolicy' => __DIR__ . '/../..' . '/app/Policies/RolePolicy.php',
+        'App\\Policies\\UserPolicy' => __DIR__ . '/../..' . '/app/Policies/UserPolicy.php',
         'App\\Providers\\AppServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AppServiceProvider.php',
         'App\\Providers\\Filament\\AdminPanelProvider' => __DIR__ . '/../..' . '/app/Providers/Filament/AdminPanelProvider.php',
         'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
@@ -970,6 +1002,7 @@ class ComposerStaticInit36b7ee5f0e25f34a1627452ab111b728
         'DeepCopy\\TypeFilter\\Spl\\SplDoublyLinkedListFilter' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/TypeFilter/Spl/SplDoublyLinkedListFilter.php',
         'DeepCopy\\TypeFilter\\TypeFilter' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/TypeFilter/TypeFilter.php',
         'DeepCopy\\TypeMatcher\\TypeMatcher' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/TypeMatcher/TypeMatcher.php',
+        'Detection\\MobileDetect' => __DIR__ . '/..' . '/mobiledetect/mobiledetectlib/namespaced/Detection/MobileDetect.php',
         'Dflydev\\DotAccessData\\Data' => __DIR__ . '/..' . '/dflydev/dot-access-data/src/Data.php',
         'Dflydev\\DotAccessData\\DataInterface' => __DIR__ . '/..' . '/dflydev/dot-access-data/src/DataInterface.php',
         'Dflydev\\DotAccessData\\Exception\\DataException' => __DIR__ . '/..' . '/dflydev/dot-access-data/src/Exception/DataException.php',
@@ -4401,11 +4434,35 @@ class ComposerStaticInit36b7ee5f0e25f34a1627452ab111b728
         'Illuminate\\View\\ViewFinderInterface' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/View/ViewFinderInterface.php',
         'Illuminate\\View\\ViewName' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/View/ViewName.php',
         'Illuminate\\View\\ViewServiceProvider' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/View/ViewServiceProvider.php',
+        'Jaybizzle\\CrawlerDetect\\CrawlerDetect' => __DIR__ . '/..' . '/jaybizzle/crawler-detect/src/CrawlerDetect.php',
+        'Jaybizzle\\CrawlerDetect\\Fixtures\\AbstractProvider' => __DIR__ . '/..' . '/jaybizzle/crawler-detect/src/Fixtures/AbstractProvider.php',
+        'Jaybizzle\\CrawlerDetect\\Fixtures\\Crawlers' => __DIR__ . '/..' . '/jaybizzle/crawler-detect/src/Fixtures/Crawlers.php',
+        'Jaybizzle\\CrawlerDetect\\Fixtures\\Exclusions' => __DIR__ . '/..' . '/jaybizzle/crawler-detect/src/Fixtures/Exclusions.php',
+        'Jaybizzle\\CrawlerDetect\\Fixtures\\Headers' => __DIR__ . '/..' . '/jaybizzle/crawler-detect/src/Fixtures/Headers.php',
         'Jean85\\Exception\\ProvidedPackageException' => __DIR__ . '/..' . '/jean85/pretty-package-versions/src/Exception/ProvidedPackageException.php',
         'Jean85\\Exception\\ReplacedPackageException' => __DIR__ . '/..' . '/jean85/pretty-package-versions/src/Exception/ReplacedPackageException.php',
         'Jean85\\Exception\\VersionMissingExceptionInterface' => __DIR__ . '/..' . '/jean85/pretty-package-versions/src/Exception/VersionMissingExceptionInterface.php',
         'Jean85\\PrettyVersions' => __DIR__ . '/..' . '/jean85/pretty-package-versions/src/PrettyVersions.php',
         'Jean85\\Version' => __DIR__ . '/..' . '/jean85/pretty-package-versions/src/Version.php',
+        'Jenssegers\\Agent\\Agent' => __DIR__ . '/..' . '/jenssegers/agent/src/Agent.php',
+        'Jenssegers\\Agent\\AgentServiceProvider' => __DIR__ . '/..' . '/jenssegers/agent/src/AgentServiceProvider.php',
+        'Jenssegers\\Agent\\Facades\\Agent' => __DIR__ . '/..' . '/jenssegers/agent/src/Facades/Agent.php',
+        'Joaopaulolndev\\FilamentEditProfile\\Commands\\FilamentEditProfileCommand' => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/src/Commands/FilamentEditProfileCommand.php',
+        'Joaopaulolndev\\FilamentEditProfile\\Concerns\\HasSort' => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/src/Concerns/HasSort.php',
+        'Joaopaulolndev\\FilamentEditProfile\\Concerns\\HasUser' => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/src/Concerns/HasUser.php',
+        'Joaopaulolndev\\FilamentEditProfile\\Facades\\FilamentEditProfile' => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/src/Facades/FilamentEditProfile.php',
+        'Joaopaulolndev\\FilamentEditProfile\\FilamentEditProfile' => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/src/FilamentEditProfile.php',
+        'Joaopaulolndev\\FilamentEditProfile\\FilamentEditProfilePlugin' => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/src/FilamentEditProfilePlugin.php',
+        'Joaopaulolndev\\FilamentEditProfile\\FilamentEditProfileServiceProvider' => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/src/FilamentEditProfileServiceProvider.php',
+        'Joaopaulolndev\\FilamentEditProfile\\Livewire\\BaseProfileForm' => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/src/Livewire/BaseProfileForm.php',
+        'Joaopaulolndev\\FilamentEditProfile\\Livewire\\BrowserSessionsForm' => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/src/Livewire/BrowserSessionsForm.php',
+        'Joaopaulolndev\\FilamentEditProfile\\Livewire\\CustomFieldsForm' => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/src/Livewire/CustomFieldsForm.php',
+        'Joaopaulolndev\\FilamentEditProfile\\Livewire\\DeleteAccountForm' => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/src/Livewire/DeleteAccountForm.php',
+        'Joaopaulolndev\\FilamentEditProfile\\Livewire\\EditPasswordForm' => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/src/Livewire/EditPasswordForm.php',
+        'Joaopaulolndev\\FilamentEditProfile\\Livewire\\EditProfileForm' => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/src/Livewire/EditProfileForm.php',
+        'Joaopaulolndev\\FilamentEditProfile\\Livewire\\SanctumTokens' => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/src/Livewire/SanctumTokens.php',
+        'Joaopaulolndev\\FilamentEditProfile\\Pages\\EditProfilePage' => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/src/Pages/EditProfilePage.php',
+        'Joaopaulolndev\\FilamentEditProfile\\Testing\\TestsFilamentEditProfile' => __DIR__ . '/..' . '/joaopaulolndev/filament-edit-profile/src/Testing/TestsFilamentEditProfile.php',
         'Kirschbaum\\PowerJoins\\EloquentJoins' => __DIR__ . '/..' . '/kirschbaum-development/eloquent-power-joins/src/EloquentJoins.php',
         'Kirschbaum\\PowerJoins\\FakeJoinCallback' => __DIR__ . '/..' . '/kirschbaum-development/eloquent-power-joins/src/FakeJoinCallback.php',
         'Kirschbaum\\PowerJoins\\JoinsHelper' => __DIR__ . '/..' . '/kirschbaum-development/eloquent-power-joins/src/JoinsHelper.php',
@@ -5237,6 +5294,7 @@ class ComposerStaticInit36b7ee5f0e25f34a1627452ab111b728
         'Masterminds\\HTML5\\Serializer\\OutputRules' => __DIR__ . '/..' . '/masterminds/html5/src/HTML5/Serializer/OutputRules.php',
         'Masterminds\\HTML5\\Serializer\\RulesInterface' => __DIR__ . '/..' . '/masterminds/html5/src/HTML5/Serializer/RulesInterface.php',
         'Masterminds\\HTML5\\Serializer\\Traverser' => __DIR__ . '/..' . '/masterminds/html5/src/HTML5/Serializer/Traverser.php',
+        'Mobile_Detect' => __DIR__ . '/..' . '/mobiledetect/mobiledetectlib/Mobile_Detect.php',
         'Mockery\\Adapter\\Phpunit\\MockeryPHPUnitIntegration' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery/Adapter/Phpunit/MockeryPHPUnitIntegration.php',
         'Mockery\\Adapter\\Phpunit\\MockeryPHPUnitIntegrationAssertPostConditions' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery/Adapter/Phpunit/MockeryPHPUnitIntegrationAssertPostConditions.php',
         'Mockery\\Adapter\\Phpunit\\MockeryTestCase' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery/Adapter/Phpunit/MockeryTestCase.php',
@@ -9424,6 +9482,7 @@ class ComposerStaticInit36b7ee5f0e25f34a1627452ab111b728
         return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticInit36b7ee5f0e25f34a1627452ab111b728::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInit36b7ee5f0e25f34a1627452ab111b728::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit36b7ee5f0e25f34a1627452ab111b728::$prefixesPsr0;
             $loader->classMap = ComposerStaticInit36b7ee5f0e25f34a1627452ab111b728::$classMap;
 
         }, null, ClassLoader::class);
