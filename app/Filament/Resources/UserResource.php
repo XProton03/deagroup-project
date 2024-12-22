@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use Filament\Forms;
 use App\Models\User;
 use Filament\Tables;
+use Illuminate\Support\Str;
 use Filament\Forms\Form;
 use Filament\Pages\Page;
 use Filament\Tables\Table;
@@ -15,8 +16,9 @@ use Filament\Resources\Pages\CreateRecord;
 use App\Filament\Resources\UserResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\UserResource\RelationManagers;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 
-class UserResource extends Resource
+class UserResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = User::class;
 
@@ -25,24 +27,45 @@ class UserResource extends Resource
     protected static ?string $label = 'User';
     protected static ?string $slug = 'user';
 
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any'
+        ];
+    }
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Form Tambah User')
+                Forms\Components\Section::make('Form User')
                     ->schema([
-                        Forms\Components\TextInput::make('name')
-                            ->required()
-                            ->maxLength(255),
-                        Forms\Components\TextInput::make('email')
-                            ->email()
-                            ->required()
-                            ->maxLength(255),
-                        Forms\Components\TextInput::make('password')
-                            ->password()
-                            ->dehydrateStateUsing(fn(string $state): string => Hash::make($state))
-                            ->dehydrated(fn(?string $state): bool => filled($state))
-                            ->required(fn(Page $livewire): bool => $livewire instanceof CreateRecord),
+                        Forms\Components\Section::make('Add User')
+                            ->schema([
+                                Forms\Components\TextInput::make('name')
+                                    ->unique(ignoreRecord: true)
+                                    ->required(),
+                                Forms\Components\TextInput::make('email')
+                                    ->unique(ignoreRecord: true)
+                                    ->email()
+                                    ->required(),
+                                Forms\Components\TextInput::make('password')
+                                    ->password()
+                                    ->dehydrateStateUsing(fn(string $state): string => Hash::make($state))
+                                    ->dehydrated(fn(?string $state): bool => filled($state))
+                                    ->required(fn(Page $livewire): bool => $livewire instanceof CreateRecord),
+                                Forms\Components\Select::make('roles')
+                                    ->relationship('roles', 'name')
+                                    ->searchable()
+                                    ->preload()
+                                    ->required(),
+                            ])
+                            ->columns(2)
                     ])
             ]);
     }
@@ -53,6 +76,9 @@ class UserResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name'),
                 Tables\Columns\TextColumn::make('email'),
+                Tables\Columns\TextColumn::make('roles.name')
+                    ->label('Role')
+                    ->formatStateUsing(fn($state): string => Str::headline($state)),
             ])
             ->filters([
                 //
