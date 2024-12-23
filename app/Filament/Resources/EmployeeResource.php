@@ -9,12 +9,18 @@ use App\Models\Employee;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Forms\Get as FormsGet;
 use Filament\Tables\Actions\Action;
+use Filament\Infolists\Components\Split;
 use Filament\Tables\Actions\ActionGroup;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Exports\EmployeeExporter;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\Fieldset;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\ImageEntry;
 use Filament\Tables\Actions\ExportBulkAction;
 use App\Filament\Resources\EmployeeResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -196,25 +202,23 @@ class EmployeeResource extends Resource implements HasShieldPermissions
                 Tables\Columns\TextColumn::make('phone'),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('provinces.name')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('regencies.name')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('districts.name')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('villages.name')
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('departments.department_name')
                     ->label('Department')
-                    ->searchable()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('job_positions.position_name')
+                    ->label('Jabatan')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('employement_statuses.status_name')
+                    ->label('Status')
+                    ->searchable(),
             ])
             ->filters([
                 //
             ])
             ->actions([
                 ActionGroup::make([
+                    Tables\Actions\ViewAction::make()
+                        ->icon('heroicon-o-eye'),
                     Tables\Actions\EditAction::make(),
                     Tables\Actions\DeleteAction::make(),
                     Action::make('activities')
@@ -232,6 +236,63 @@ class EmployeeResource extends Resource implements HasShieldPermissions
                 ]),
             ]);
     }
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Section::make('Detail Karyawan')
+                    ->schema([
+                        Fieldset::make('Informasi Karyawan')
+                            ->schema([
+                                TextEntry::make('employee_code')
+                                    ->columnSpan('full')
+                                    ->badge()
+                                    ->label('NIP'),
+                                TextEntry::make('name')
+                                    ->label('Nama'),
+                                TextEntry::make('birth_date')
+                                    ->label('Tanggal Lahir'),
+                                TextEntry::make('gender')
+                                    ->badge()
+                                    ->label('Jenis Kelamin'),
+                                TextEntry::make('phone')
+                                    ->label('No. Telepon'),
+                                TextEntry::make('email')
+                                    ->label('Email'),
+                                TextEntry::make('provinces.name')
+                                    ->label('Provinsi'),
+                                TextEntry::make('regencies.name')
+                                    ->label('Kabupaten/Kota'),
+                                TextEntry::make('districts.name')
+                                    ->label('Kecamatan'),
+                                TextEntry::make('villages.name')
+                                    ->label('Kelurahan'),
+                                TextEntry::make('address')
+                                    ->label('Alamat')
+                                    ->columnSpanFull()
+                                    ->markdown(),
+                            ])->columns(3),
+                        Fieldset::make('Status Karyawan')
+                            ->schema([
+                                TextEntry::make('employement_statuses.status_name')
+                                    ->badge()
+                                    ->label('Status'),
+                                TextEntry::make('departments.department_name')
+                                    ->badge()
+                                    ->label('Departemen'),
+                                TextEntry::make('job_positions.position_name')
+                                    ->badge()
+                                    ->label('Jabatan'),
+                                TextEntry::make('contract_start_date')
+                                    ->label('Mulai Kontrak')
+                                    ->date(),
+                                TextEntry::make('contract_end_date')
+                                    ->label('Selesai Kontrak')
+                                    ->date(),
+                            ])->columns(3),
+                    ])
+            ]);
+    }
 
     public static function getRelations(): array
     {
@@ -246,6 +307,7 @@ class EmployeeResource extends Resource implements HasShieldPermissions
             'index' => Pages\ListEmployees::route('/'),
             'create' => Pages\CreateEmployee::route('/create'),
             'edit' => Pages\EditEmployee::route('/{record}/edit'),
+            'view' => Pages\ViewEmployee::route('/{record}'),
             'activities' => Pages\ListEmployeeActivities::route('/{record}/activities'),
         ];
     }
