@@ -25,7 +25,10 @@ class VillageResource extends Resource implements HasShieldPermissions
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Geolocation';
+    protected static ?string $navigationLabel = 'Village';
+    protected static ?string $label = 'Village';
     protected static ?string $slug = 'villages';
+    protected static ?int $navigationSort = 44;
 
     public static function getPermissionPrefixes(): array
     {

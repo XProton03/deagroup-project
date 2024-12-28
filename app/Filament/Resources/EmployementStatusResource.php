@@ -23,8 +23,10 @@ class EmployementStatusResource extends Resource implements HasShieldPermissions
 
     protected static ?string $navigationIcon = 'heroicon-o-exclamation-circle';
     protected static ?string $navigationGroup = 'Employees';
-    protected static ?string $slug = 'employment-statuses';
+    protected static ?string $navigationLabel = 'Status';
     protected static ?string $label = 'Status';
+    protected static ?string $slug = 'employee-status';
+    protected static ?int $navigationSort = 22;
 
     public static function getPermissionPrefixes(): array
     {

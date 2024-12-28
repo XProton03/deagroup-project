@@ -23,7 +23,10 @@ class JobPositionResource extends Resource implements HasShieldPermissions
 
     protected static ?string $navigationIcon = 'heroicon-o-identification';
     protected static ?string $navigationGroup = 'Employees';
+    protected static ?string $navigationLabel = 'Job Position';
+    protected static ?string $label = 'Job Position';
     protected static ?string $slug = 'job-positions';
+    protected static ?int $navigationSort = 24;
 
     public static function getPermissionPrefixes(): array
     {

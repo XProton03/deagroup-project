@@ -34,7 +34,10 @@ class EmployeeResource extends Resource implements HasShieldPermissions
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
     protected static ?string $navigationGroup = 'Employees';
-    protected static ?string $slug = 'employees';
+    protected static ?string $navigationLabel = 'Employee';
+    protected static ?string $label = 'Employee';
+    protected static ?string $slug = 'employee';
+    protected static ?int $navigationSort = 21;
 
     public static function getPermissionPrefixes(): array
     {

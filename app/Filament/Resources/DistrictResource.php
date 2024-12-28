@@ -21,7 +21,10 @@ class DistrictResource extends Resource implements HasShieldPermissions
 
     protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
     protected static ?string $navigationGroup = 'Geolocation';
+    protected static ?string $navigationLabel = 'District';
+    protected static ?string $label = 'District';
     protected static ?string $slug = 'districts';
+    protected static ?int $navigationSort = 43;
 
     public static function getPermissionPrefixes(): array
     {

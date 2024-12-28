@@ -35,6 +35,7 @@ return [
     */
 
     'nav.group' => 'User Management',
+    'nav.sort' => 52,
     'nav.role.label' => 'Roles',
     'nav.role.icon' => 'heroicon-o-shield-check',
     'resource.label.role' => 'Role',

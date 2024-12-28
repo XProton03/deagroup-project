@@ -21,7 +21,10 @@ class ProvinceResource extends Resource implements HasShieldPermissions
 
     protected static ?string $navigationIcon = 'heroicon-o-flag';
     protected static ?string $navigationGroup = 'Geolocation';
+    protected static ?string $navigationLabel = 'Province';
+    protected static ?string $label = 'Province';
     protected static ?string $slug = 'provinces';
+    protected static ?int $navigationSort = 41;
 
     public static function getPermissionPrefixes(): array
     {

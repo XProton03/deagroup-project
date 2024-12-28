@@ -1,0 +1,280 @@
+<?php
+
+namespace App\Filament\Resources;
+
+use Filament\Forms;
+use Filament\Tables;
+use Filament\Forms\Set;
+use Filament\Forms\Form;
+use App\Models\Quotation;
+use Filament\Tables\Table;
+use Filament\Infolists\Infolist;
+use Filament\Resources\Resource;
+use Filament\Forms\Get as FormsGet;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\BulkAction;
+use Filament\Tables\Actions\ActionGroup;
+use Illuminate\Database\Eloquent\Builder;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\Fieldset;
+use Filament\Infolists\Components\TextEntry;
+use App\Filament\Resources\QuotationResource\Pages;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Resources\RelationManagers\RelationManager;
+use App\Filament\Resources\QuotationResource\RelationManagers;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
+use Filament\Forms\Components\Repeater;
+
+class QuotationResource extends Resource implements HasShieldPermissions
+{
+    protected static ?string $model = Quotation::class;
+
+    protected static ?string $navigationIcon = 'heroicon-o-folder';
+    protected static ?string $navigationGroup = 'Project Management';
+    protected static ?string $navigationLabel = 'Project';
+    protected static ?string $label = 'Project';
+    protected static ?string $slug = 'project';
+    protected static ?int $navigationSort = 11;
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+        ];
+    }
+
+    public static function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Forms\Components\Section::make('Form Quotation')
+                    ->description()
+                    ->schema([
+                        Forms\Components\TextInput::make('quotation_number')
+                            ->label('Quotation Number')
+                            ->default(function () {
+                                return 'DG-' . now()->format('m') . '-' . str_pad(mt_rand(0, 9999), 4, '0', STR_PAD_LEFT);
+                            })
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\DatePicker::make('request_date')
+                            ->native(false)
+                            ->displayFormat('d/m/Y'),
+                        Forms\Components\TextInput::make('price')
+                            ->label('Harga')
+                            ->required()
+                            ->numeric(),
+                        Forms\Components\Select::make('customers_id')
+                            ->label('Customer')
+                            ->relationship(name: 'customers', titleAttribute: 'name')
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->getOptionLabelFromRecordUsing(function ($record) {
+                                return $record->name . ' - ' . ($record->companies->company_name ?? 'N/A');
+                            })
+                            ->createOptionForm([
+                                Forms\Components\Section::make('Form Customer')
+                                    ->description('please fill the column')
+                                    ->schema([
+                                        Forms\Components\TextInput::make('name')
+                                            ->required()
+                                            ->maxLength(255),
+                                        Forms\Components\TextInput::make('email')
+                                            ->email()
+                                            ->required()
+                                            ->maxLength(255),
+                                        Forms\Components\TextInput::make('phone')
+                                            ->tel()
+                                            ->required(),
+                                        Forms\Components\Select::make('companies_id')
+                                            ->relationship('companies', 'company_name')
+                                            ->required()
+                                            ->preload()
+                                            ->searchable()
+                                            ->getOptionLabelFromRecordUsing(function ($record) {
+                                                return $record->company_name . ' - Location: ' . ($record->villages->name ?? 'N/A');
+                                            }),
+                                        Forms\Components\Select::make('customer_type')
+                                            ->options([
+                                                'Perusahaan' => 'Perusahaan',
+                                                'Perorangan' => 'Perorangan',
+                                            ])
+                                            ->required()
+                                            ->searchable()
+                                            ->live(),
+                                    ])
+                            ]),
+                        Forms\Components\TextInput::make('project_name')
+                            ->columnSpan(2)
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\Select::make('category')
+                            ->options([
+                                'Project' => 'Project',
+                                'Mandays' => 'Mandays',
+                            ])
+                            ->required()
+                            ->searchable(),
+                        Forms\Components\DatePicker::make('start_date')
+                            ->native(false)
+                            ->displayFormat('d/m/Y'),
+                        Forms\Components\DatePicker::make('end_date')
+                            ->native(false)
+                            ->displayFormat('d/m/Y')
+                            ->after('start_date', true),
+                        Forms\Components\TextInput::make('completion_percentage')
+                            ->numeric(),
+                        Forms\Components\Select::make('status')
+                            ->options([
+                                'Belum Selesai' => 'Belum Selesai',
+                                'Selesai' => 'Selesai',
+                            ])
+                            ->searchable()
+                            ->required()
+                            ->default('Belum Selesai'),
+                        Forms\Components\Select::make('employees_id')
+                            ->label('PIC')
+                            ->relationship(name: 'employees', titleAttribute: 'name')
+                            ->searchable()
+                            ->preload()
+                            ->required(),
+                        Forms\Components\RichEditor::make('notes')
+                            ->maxLength(65535)
+                            ->columnSpan(3),
+                    ])
+                    ->columns('3'),
+            ]);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+                Tables\Columns\TextColumn::make('quotation_number')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('customers.name')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('customers.companies.company_name')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('project_name')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('completion_percentage')
+                    ->label('Progress')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('price')
+                    ->searchable()
+                    ->money('IDR'),
+                Tables\Columns\TextColumn::make('status')
+                    ->searchable()
+                    ->badge()
+                    ->color(fn($state) => [
+                        'Belum Selesai' => 'warning',
+                        'Selesai'       => 'success',
+                    ][$state] ?? 'secondary'),
+
+            ])
+            ->filters([
+                //
+            ])
+            ->actions([
+                ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                    Action::make('Selesai')
+                        ->label('Selesai')
+                        ->visible(fn($record) => $record->status !== 'Selesai') // Tampilkan jika status bukan 'Aktif'
+                        ->color('success')
+                        ->action(fn($record) => $record->update(['status' => 'Selesai']))
+                        ->requiresConfirmation()
+                        ->icon('heroicon-o-check-circle'),
+                    Action::make('activities')
+                        ->url(fn($record) => QuotationResource::getUrl('activities', ['record' => $record]))
+                        ->icon('heroicon-o-clock')
+                        ->color('secondary')
+                        ->label('Logs'),
+                ])
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                    BulkAction::make('Selesai')
+                        ->label('Selesai')
+                        ->color('success')
+                        ->icon('heroicon-o-check-circle')
+                        ->requiresConfirmation()
+                        ->action(fn($records) => $records->each(fn($record) => $record->update(['status' => 'Selesai'])))
+                        ->deselectRecordsAfterCompletion(),
+                ]),
+            ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Section::make('Detail Quotation')
+                    ->schema([
+                        Fieldset::make('Informasi Quotation')
+                            ->schema([
+                                TextEntry::make('quotation_number')
+                                    ->columnSpan('full')
+                                    ->badge(),
+                                TextEntry::make('customers.name')
+                                    ->label('Nama'),
+                                TextEntry::make('customers.companies.company_name')
+                                    ->label('Perusahaan'),
+                                TextEntry::make('request_date')
+                                    ->date(),
+                                TextEntry::make('category')
+                                    ->badge(),
+                                TextEntry::make('project_name'),
+                                TextEntry::make('price')
+                                    ->badge()
+                                    ->money('IDR'),
+                                TextEntry::make('start_date')
+                                    ->date(),
+                                TextEntry::make('end_date')
+                                    ->date(),
+                                TextEntry::make('employees.name')
+                                    ->label('PIC'),
+                                TextEntry::make('completion_percentage')
+                                    ->badge()
+                                    ->label('Progress'),
+                                TextEntry::make('status')
+                                    ->badge()
+                                    ->label('Status'),
+                                TextEntry::make('notes')
+                                    ->label('Note')
+                                    ->columnSpanFull()
+                                    ->markdown(),
+                            ])->columns(3),
+                    ])
+            ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            RelationManagers\QuotationFilesRelationManager::class,
+            RelationManagers\TasksRelationManager::class,
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListQuotations::route('/'),
+            'create' => Pages\CreateQuotation::route('/create'),
+            'view' => Pages\ViewQuotation::route('/{record}'),
+            'edit' => Pages\EditQuotation::route('/{record}/edit'),
+            'activities' => Pages\ListQuotationActivities::route('/{record}/activities'),
+        ];
+    }
+}

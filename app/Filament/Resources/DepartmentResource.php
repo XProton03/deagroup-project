@@ -23,7 +23,10 @@ class DepartmentResource extends Resource implements HasShieldPermissions
 
     protected static ?string $navigationIcon = 'heroicon-o-briefcase';
     protected static ?string $navigationGroup = 'Employees';
+    protected static ?string $navigationLabel = 'Department';
+    protected static ?string $label = 'Department';
     protected static ?string $slug = 'departments';
+    protected static ?int $navigationSort = 23;
 
     public static function getPermissionPrefixes(): array
     {

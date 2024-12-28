@@ -21,7 +21,10 @@ class RegencyResource extends Resource implements HasShieldPermissions
 
     protected static ?string $navigationIcon = 'heroicon-o-building-library';
     protected static ?string $navigationGroup = 'Geolocation';
+    protected static ?string $navigationLabel = 'Regency';
+    protected static ?string $label = 'Regency';
     protected static ?string $slug = 'regencies';
+    protected static ?int $navigationSort = 42;
 
     public static function getPermissionPrefixes(): array
     {
