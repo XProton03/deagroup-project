@@ -8,12 +8,18 @@ use Filament\Forms\Set;
 use Filament\Forms\Form;
 use App\Models\Quotation;
 use Filament\Tables\Table;
+use Illuminate\Support\Carbon;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Forms\Get as FormsGet;
 use Filament\Tables\Actions\Action;
+use Filament\Tables\Filters\Filter;
+use Illuminate\Support\Facades\Auth;
+use Filament\Forms\Components\Repeater;
 use Filament\Tables\Actions\BulkAction;
+use Filament\Notifications\Notification;
 use Filament\Tables\Actions\ActionGroup;
+use Filament\Forms\Components\DatePicker;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\Fieldset;
@@ -23,7 +29,6 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Resources\RelationManagers\RelationManager;
 use App\Filament\Resources\QuotationResource\RelationManagers;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
-use Filament\Forms\Components\Repeater;
 
 class QuotationResource extends Resource implements HasShieldPermissions
 {
@@ -57,11 +62,11 @@ class QuotationResource extends Resource implements HasShieldPermissions
                     ->schema([
                         Forms\Components\TextInput::make('quotation_number')
                             ->label('Quotation Number')
-                            ->default(function () {
-                                return 'DG-' . now()->format('m') . '-' . str_pad(mt_rand(0, 9999), 4, '0', STR_PAD_LEFT);
-                            })
                             ->required()
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->unique(ignoreRecord: true)
+                            ->default(fn() => \App\Models\Quotation::generateQuotationNumber())
+                            ->readOnly(),
                         Forms\Components\DatePicker::make('request_date')
                             ->native(false)
                             ->displayFormat('d/m/Y'),
@@ -129,15 +134,19 @@ class QuotationResource extends Resource implements HasShieldPermissions
                             ->displayFormat('d/m/Y')
                             ->after('start_date', true),
                         Forms\Components\TextInput::make('completion_percentage')
-                            ->numeric(),
+                            ->numeric()
+                            ->readOnly()
+                            ->default(0)
+                            ->suffix('%'),
                         Forms\Components\Select::make('status')
                             ->options([
-                                'Belum Selesai' => 'Belum Selesai',
-                                'Selesai' => 'Selesai',
+                                'Open' => 'Open',
+                                'Payment Process' => 'Payment Process',
+                                'Completed' => 'Completed',
                             ])
                             ->searchable()
                             ->required()
-                            ->default('Belum Selesai'),
+                            ->default('Open'),
                         Forms\Components\Select::make('employees_id')
                             ->label('PIC')
                             ->relationship(name: 'employees', titleAttribute: 'name')
@@ -158,42 +167,72 @@ class QuotationResource extends Resource implements HasShieldPermissions
             ->columns([
                 Tables\Columns\TextColumn::make('quotation_number')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('quotation_payment.payment_number')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('customers.name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('customers.companies.company_name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('project_name')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('total_tasks')
+                    ->label('Total Tasks')
+                    ->getStateUsing(fn(Quotation $quotation) => $quotation->tasks()->count()),
                 Tables\Columns\TextColumn::make('completion_percentage')
-                    ->label('Progress')
-                    ->searchable(),
+                    ->label('Task Progress')
+                    ->badge()
+                    ->suffix('%'),
                 Tables\Columns\TextColumn::make('price')
+                    ->label('Global Price')
+                    ->searchable()
+                    ->money('IDR'),
+                Tables\Columns\TextColumn::make('price_tasks')
+                    ->label('Price Tasks')
                     ->searchable()
                     ->money('IDR'),
                 Tables\Columns\TextColumn::make('status')
                     ->searchable()
                     ->badge()
                     ->color(fn($state) => [
-                        'Belum Selesai' => 'warning',
-                        'Selesai'       => 'success',
+                        'Open'              => 'primary',
+                        'Payment Process'   => 'warning',
+                        'Completed'         => 'success',
                     ][$state] ?? 'secondary'),
-
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                Filter::make('created_at')
+                    ->form([
+                        DatePicker::make('created_from'),
+                        DatePicker::make('created_until'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['created_from'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                            )
+                            ->when(
+                                $data['created_until'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                            );
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+                        if ($data['created_from'] ?? null) {
+                            $indicators[] = 'Created from ' . Carbon::parse($data['created_from'])->format('F d, Y');
+                        }
+                        if ($data['created_until'] ?? null) {
+                            $indicators[] = 'Created until ' . Carbon::parse($data['created_until'])->format('F d, Y');
+                        }
+                        return $indicators;
+                    })
             ])
             ->actions([
                 ActionGroup::make([
                     Tables\Actions\ViewAction::make(),
                     Tables\Actions\EditAction::make(),
                     Tables\Actions\DeleteAction::make(),
-                    Action::make('Selesai')
-                        ->label('Selesai')
-                        ->visible(fn($record) => $record->status !== 'Selesai') // Tampilkan jika status bukan 'Aktif'
-                        ->color('success')
-                        ->action(fn($record) => $record->update(['status' => 'Selesai']))
-                        ->requiresConfirmation()
-                        ->icon('heroicon-o-check-circle'),
                     Action::make('activities')
                         ->url(fn($record) => QuotationResource::getUrl('activities', ['record' => $record]))
                         ->icon('heroicon-o-clock')
@@ -203,14 +242,46 @@ class QuotationResource extends Resource implements HasShieldPermissions
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    BulkAction::make('payment')
+                        ->label('Payment Process')
+                        ->color('primary')
+                        ->form([
+                            Forms\Components\DatePicker::make('payment_date')
+                                ->required()
+                                ->native(false),
+                            Forms\Components\TextInput::make('payment_number')
+                                ->required(),
+                            Forms\Components\RichEditor::make('notes')
+                                ->required(),
+                        ])
+                        ->action(function (array $data, $records) {
+                            try {
+                                foreach ($records as $record) {
+                                    // Validasi data dan simpan pembayaran
+                                    \App\Models\QuotationPayment::create([
+                                        'quotations_id'  => $record->id,
+                                        'payment_date'   => $data['payment_date'],
+                                        'payment_number' => $data['payment_number'],
+                                        'notes'          => $data['notes'],
+                                        'users_id'       => auth::user()->id,
+                                    ]);
+                                }
+
+                                // Notifikasi sukses
+                                Notification::make()
+                                    ->title('Payment success!')
+                                    ->success()
+                                    ->send();
+                            } catch (\Exception $e) {
+                                Notification::make()
+                                    ->title('Error processing payment')
+                                    ->danger()
+                                    ->body($e->getMessage())
+                                    ->send();
+                            }
+                        })
+                        ->icon('heroicon-o-credit-card'),
                     Tables\Actions\DeleteBulkAction::make(),
-                    BulkAction::make('Selesai')
-                        ->label('Selesai')
-                        ->color('success')
-                        ->icon('heroicon-o-check-circle')
-                        ->requiresConfirmation()
-                        ->action(fn($records) => $records->each(fn($record) => $record->update(['status' => 'Selesai'])))
-                        ->deselectRecordsAfterCompletion(),
                 ]),
             ]);
     }
@@ -236,6 +307,11 @@ class QuotationResource extends Resource implements HasShieldPermissions
                                     ->badge(),
                                 TextEntry::make('project_name'),
                                 TextEntry::make('price')
+                                    ->label('Global Price')
+                                    ->badge()
+                                    ->money('IDR'),
+                                TextEntry::make('price_tasks')
+                                    ->label('Price Tasks')
                                     ->badge()
                                     ->money('IDR'),
                                 TextEntry::make('start_date')
@@ -246,7 +322,8 @@ class QuotationResource extends Resource implements HasShieldPermissions
                                     ->label('PIC'),
                                 TextEntry::make('completion_percentage')
                                     ->badge()
-                                    ->label('Progress'),
+                                    ->label('Progress')
+                                    ->suffix('%'),
                                 TextEntry::make('status')
                                     ->badge()
                                     ->label('Status'),
@@ -255,7 +332,22 @@ class QuotationResource extends Resource implements HasShieldPermissions
                                     ->columnSpanFull()
                                     ->markdown(),
                             ])->columns(3),
-                    ])
+                        Fieldset::make('Informasi Payment')
+                            ->schema([
+                                TextEntry::make('quotation_payment.payment_number')
+                                    ->label('Nomor Penagihan')
+                                    ->badge(),
+                                TextEntry::make('quotation_payment.payment_date')
+                                    ->label('Tanggal Penagihan')
+                                    ->date(),
+                                TextEntry::make('quotation_payment.user.name')
+                                    ->label('Proses oleh'),
+                                TextEntry::make('quotation_payment.notes')
+                                    ->columnSpanFull()
+                                    ->markdown()
+                                    ->label('Notes'),
+                            ])->columns(3),
+                    ]),
             ]);
     }
 

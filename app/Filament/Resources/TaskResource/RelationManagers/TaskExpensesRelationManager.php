@@ -25,9 +25,6 @@ class TaskExpensesRelationManager extends RelationManager
                     ->options([
                         'MCU' => 'MCU',
                         'Surat Sehat' => 'Surat Sehat',
-                        'Mandays' => 'Mandays',
-                        'Transport' => 'Transport',
-                        'Penginapan' => 'Penginapan',
                         'Lainnya' => 'Lainnya',
                     ])
                     ->searchable(),

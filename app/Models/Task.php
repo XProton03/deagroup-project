@@ -38,7 +38,7 @@ class Task extends Model
     }
     public function quotations()
     {
-        return $this->belongsTo(Quotation::class, 'quotations_id');
+        return $this->belongsTo(Quotation::class, 'quotations_id', 'id');
     }
     public function companies()
     {
@@ -55,5 +55,9 @@ class Task extends Model
     public function task_expenses()
     {
         return $this->hasMany(TaskExpense::class, 'tasks_id');
+    }
+    public function job_costs()
+    {
+        return $this->hasMany(JobCost::class, 'tasks_id');
     }
 }

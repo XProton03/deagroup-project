@@ -92,7 +92,21 @@ class TasksRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('end_date')
                     ->date()
                     ->searchable(),
+                Tables\Columns\TextColumn::make('duration')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('employees.name')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('job_costs.mandays')
+                    ->label('Mandays')
+                    ->money('IDR')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('job_costs.transports')
+                    ->label('Transport')
+                    ->money('IDR')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('job_costs.accomodations')
+                    ->label('Accomodation')
+                    ->money('IDR')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('status')
                     ->searchable()

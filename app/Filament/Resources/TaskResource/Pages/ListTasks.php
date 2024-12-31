@@ -30,6 +30,9 @@ class ListTasks extends ListRecords
             'In Progress' => Tab::make()
                 ->modifyQueryUsing(fn(Builder $query) => $query->where('status', '=', 'In Progress'))
                 ->badge(Task::query()->where('status', '=', 'In Progress')->count()),
+            'Document Progress' => Tab::make()
+                ->modifyQueryUsing(fn(Builder $query) => $query->where('status', '=', 'Document Progress'))
+                ->badge(Task::query()->where('status', '=', 'Document Progress')->count()),
             'Completed' => Tab::make()
                 ->modifyQueryUsing(fn(Builder $query) => $query->where('status', '=', 'Completed'))
                 ->badge(Task::query()->where('status', '=', 'Completed')->count()),
