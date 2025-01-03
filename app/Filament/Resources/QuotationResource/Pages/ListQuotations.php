@@ -24,12 +24,15 @@ class ListQuotations extends ListRecords
         return [
             'All' => Tab::make()
                 ->badge(Quotation::query()->count()),
-            'Selesai' => Tab::make()
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('status', '=', 'Selesai'))
-                ->badge(Quotation::query()->where('status', '=', 'Selesai')->count()),
-            'Belum Selesai' => Tab::make()
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('status', '=', 'Belum Selesai'))
-                ->badge(Quotation::query()->where('status', '=', 'Belum Selesai')->count()),
+            'Completed' => Tab::make()
+                ->modifyQueryUsing(fn(Builder $query) => $query->where('status', '=', 'Completed'))
+                ->badge(Quotation::query()->where('status', '=', 'Completed')->count()),
+            'Open' => Tab::make()
+                ->modifyQueryUsing(fn(Builder $query) => $query->where('status', '=', 'Open'))
+                ->badge(Quotation::query()->where('status', '=', 'Open')->count()),
+            'Payment Process' => Tab::make()
+                ->modifyQueryUsing(fn(Builder $query) => $query->where('status', '=', 'Payment Process'))
+                ->badge(Quotation::query()->where('status', '=', 'Payment Process')->count()),
         ];
     }
 }

@@ -17,6 +17,7 @@ use Filament\Tables\Filters\Filter;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Repeater;
 use Filament\Tables\Actions\BulkAction;
+use Illuminate\Support\Facades\Storage;
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Forms\Components\DatePicker;
@@ -24,11 +25,16 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\Fieldset;
 use Filament\Infolists\Components\TextEntry;
+use Illuminate\Database\Eloquent\Collection;
 use App\Filament\Resources\QuotationResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Resources\RelationManagers\RelationManager;
+use IbrahimBougaoua\FilaProgress\Tables\Columns\ProgressBar;
 use App\Filament\Resources\QuotationResource\RelationManagers;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
+use IbrahimBougaoua\FilaProgress\Tables\Columns\CircleProgress;
+use IbrahimBougaoua\FilaProgress\Infolists\Components\ProgressBarEntry;
+use IbrahimBougaoua\FilaProgress\Infolists\Components\CircleProgressEntry;
 
 class QuotationResource extends Resource implements HasShieldPermissions
 {
@@ -178,10 +184,8 @@ class QuotationResource extends Resource implements HasShieldPermissions
                 Tables\Columns\TextColumn::make('total_tasks')
                     ->label('Total Tasks')
                     ->getStateUsing(fn(Quotation $quotation) => $quotation->tasks()->count()),
-                Tables\Columns\TextColumn::make('completion_percentage')
-                    ->label('Task Progress')
-                    ->badge()
-                    ->suffix('%'),
+                CircleProgress::make('completion_percentage')
+                    ->label('Task Progress'),
                 Tables\Columns\TextColumn::make('price')
                     ->label('Global Price')
                     ->searchable()
@@ -197,6 +201,11 @@ class QuotationResource extends Resource implements HasShieldPermissions
                         'Open'              => 'primary',
                         'Payment Process'   => 'warning',
                         'Completed'         => 'success',
+                    ][$state] ?? 'secondary')
+                    ->icon(fn($state) => [
+                        'Open'              => 'heroicon-o-clock',
+                        'Payment Process'   => 'heroicon-o-credit-card',
+                        'Completed'         => 'heroicon-o-check-circle',
                     ][$state] ?? 'secondary'),
             ])
             ->defaultSort('created_at', 'desc')
@@ -281,7 +290,45 @@ class QuotationResource extends Resource implements HasShieldPermissions
                             }
                         })
                         ->icon('heroicon-o-credit-card'),
-                    Tables\Actions\DeleteBulkAction::make(),
+                    //Tables\Actions\DeleteBulkAction::make(),
+                    BulkAction::make('delete')
+                        ->label('Delete Selected')
+                        ->color('danger')
+                        ->icon('heroicon-o-trash')
+                        ->action(function (Collection $records) {
+                            foreach ($records as $quotation) {
+                                // 🗂 Hapus semua file terkait di quotation_files
+                                $quotation->quotation_files()->each(function ($file) {
+                                    if (Storage::disk('public')->exists($file->file)) {
+                                        Storage::disk('public')->delete($file->file);
+                                    }
+                                    $file->delete();
+                                });
+
+                                // 📋 Hapus semua tasks terkait
+                                $quotation->tasks()->each(function ($task) {
+                                    // 🗂 Hapus semua file terkait di task_files
+                                    $task->task_files()->each(function ($file) {
+                                        if (Storage::disk('public')->exists($file->file)) {
+                                            Storage::disk('public')->delete($file->file);
+                                        }
+                                        $file->delete();
+                                    });
+
+                                    // Hapus task
+                                    $task->delete();
+                                });
+
+                                // 🧾 Hapus quotation
+                                $quotation->delete();
+                                Notification::make()
+                                    ->title('Files deleted successfully!')
+                                    ->success()
+                                    ->send();
+                            }
+                        })
+                        ->requiresConfirmation()
+                        ->deselectRecordsAfterCompletion(),
                 ]),
             ]);
     }
@@ -298,16 +345,20 @@ class QuotationResource extends Resource implements HasShieldPermissions
                                     ->columnSpan('full')
                                     ->badge(),
                                 TextEntry::make('customers.name')
+                                    ->icon('heroicon-o-user-circle')
+                                    ->iconColor('primary')
                                     ->label('Nama'),
                                 TextEntry::make('customers.companies.company_name')
                                     ->label('Perusahaan'),
                                 TextEntry::make('request_date')
+                                    ->icon('heroicon-o-calendar')
+                                    ->iconColor('primary')
                                     ->date(),
                                 TextEntry::make('category')
                                     ->badge(),
                                 TextEntry::make('project_name'),
                                 TextEntry::make('price')
-                                    ->label('Global Price')
+                                    ->label('Quotation Price')
                                     ->badge()
                                     ->money('IDR'),
                                 TextEntry::make('price_tasks')
@@ -315,15 +366,19 @@ class QuotationResource extends Resource implements HasShieldPermissions
                                     ->badge()
                                     ->money('IDR'),
                                 TextEntry::make('start_date')
+                                    ->icon('heroicon-o-calendar')
+                                    ->iconColor('primary')
                                     ->date(),
                                 TextEntry::make('end_date')
+                                    ->icon('heroicon-o-calendar')
+                                    ->iconColor('primary')
                                     ->date(),
                                 TextEntry::make('employees.name')
+                                    ->icon('heroicon-o-user-circle')
+                                    ->iconColor('primary')
                                     ->label('PIC'),
-                                TextEntry::make('completion_percentage')
-                                    ->badge()
-                                    ->label('Progress')
-                                    ->suffix('%'),
+                                CircleProgressEntry::make('completion_percentage')
+                                    ->label('Progress'),
                                 TextEntry::make('status')
                                     ->badge()
                                     ->label('Status'),

@@ -3,7 +3,7 @@
         'name' => 'laravel/laravel',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '912e655b9ebdf58b0b32edcd02ca506e31cfa4b6',
+        'reference' => '14ce86b84e427d69eebd103ef69b776759ac9a39',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -337,6 +337,15 @@
             'aliases' => array(),
             'dev_requirement' => true,
         ),
+        'ibrahim-bougaoua/filaprogress' => array(
+            'pretty_version' => 'v0.1',
+            'version' => '0.1.0.0',
+            'reference' => '5a5595fd52ba1429c22701528dcbbb74d06c37ed',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../ibrahim-bougaoua/filaprogress',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'illuminate/auth' => array(
             'dev_requirement' => false,
             'replaced' => array(
@@ -604,7 +613,7 @@
         'laravel/laravel' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '912e655b9ebdf58b0b32edcd02ca506e31cfa4b6',
+            'reference' => '14ce86b84e427d69eebd103ef69b776759ac9a39',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

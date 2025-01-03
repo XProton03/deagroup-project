@@ -47,6 +47,10 @@ class DepartmentResource extends Resource implements HasShieldPermissions
                 Forms\Components\Section::make('Form Departments')
                     ->description('please fill the column')
                     ->schema([
+                        Forms\Components\TextInput::make('department_code')
+                            ->unique(ignoreRecord: true)
+                            ->required()
+                            ->maxLength(255),
                         Forms\Components\TextInput::make('department_name')
                             ->unique(ignoreRecord: true)
                             ->required()
@@ -59,6 +63,8 @@ class DepartmentResource extends Resource implements HasShieldPermissions
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('department_code')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('department_name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('employess_count')

@@ -5,8 +5,11 @@ namespace App\Filament\Resources\EmployeeResource\RelationManagers;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Tables\Table;
 use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\BulkAction;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Storage;
 use Filament\Tables\Actions\ActionGroup;
 use Illuminate\Database\Eloquent\Builder;
@@ -32,6 +35,7 @@ class EmployementFilesRelationManager extends RelationManager
                     ->openable()
                     ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png'])
                     ->imageEditor()
+                    ->directory('employees')
                     ->imageEditorAspectRatios([
                         null,
                         '16:9',
@@ -73,7 +77,24 @@ class EmployementFilesRelationManager extends RelationManager
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    BulkAction::make('delete_files')
+                        ->label('Delete Files')
+                        ->action(function (Collection $records) {
+                            foreach ($records as $record) {
+                                // Hapus file dari storage
+                                Storage::disk('public')->delete($record->file);
+
+                                // Hapus record dari database
+                                $record->delete();
+                            }
+                            Notification::make()
+                                ->title('Files deleted successfully!')
+                                ->success()
+                                ->send();
+                        })
+                        ->requiresConfirmation()
+                        ->color('danger')
+                        ->icon('heroicon-o-trash'),
                 ]),
             ]);
     }

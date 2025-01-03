@@ -13,13 +13,17 @@ use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Forms\Get as FormsGet;
 use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\BulkAction;
+use Illuminate\Support\Facades\Storage;
 use Filament\Infolists\Components\Split;
+use Filament\Notifications\Notification;
 use Filament\Tables\Actions\ActionGroup;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Exports\EmployeeExporter;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\Fieldset;
 use Filament\Infolists\Components\TextEntry;
+use Illuminate\Database\Eloquent\Collection;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Tables\Actions\ExportBulkAction;
 use App\Filament\Resources\EmployeeResource\Pages;
@@ -60,11 +64,7 @@ class EmployeeResource extends Resource implements HasShieldPermissions
                     ->schema([
                         Forms\Components\TextInput::make('employee_code')
                             ->label('NIP')
-                            ->default(function () {
-                                return 'DG-' . str_pad(mt_rand(0, 99999999), 8, '0', STR_PAD_LEFT); // Menghasilkan kode unik
-                            })
-                            ->required()
-                            ->maxLength(255)
+                            ->readOnly()
                             ->columnSpanFull(),
                         Forms\Components\TextInput::make('name')
                             ->unique(ignoreRecord: true)
@@ -233,9 +233,32 @@ class EmployeeResource extends Resource implements HasShieldPermissions
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    //Tables\Actions\DeleteBulkAction::make(),
                     ExportBulkAction::make()
                         ->exporter(EmployeeExporter::class),
+                    BulkAction::make('delete')
+                        ->label('Delete Selected')
+                        ->color('danger')
+                        ->icon('heroicon-o-trash')
+                        ->action(function (Collection $records) {
+                            foreach ($records as $employee) {
+                                // 🗂 Hapus semua file terkait di quotation_files
+                                $employee->employement_files()->each(function ($file) {
+                                    if (Storage::disk('public')->exists($file->file)) {
+                                        Storage::disk('public')->delete($file->file);
+                                    }
+                                    $file->delete();
+                                });
+                                $employee->delete();
+
+                                Notification::make()
+                                    ->title('Data deleted successfully!')
+                                    ->success()
+                                    ->send();
+                            }
+                        })
+                        ->requiresConfirmation()
+                        ->deselectRecordsAfterCompletion(),
                 ]),
             ]);
     }
@@ -252,8 +275,11 @@ class EmployeeResource extends Resource implements HasShieldPermissions
                                     ->badge()
                                     ->label('NIP'),
                                 TextEntry::make('name')
+                                    ->icon('heroicon-o-user-circle')
+                                    ->iconColor('primary')
                                     ->label('Nama'),
                                 TextEntry::make('birth_date')
+                                    ->date()
                                     ->label('Tanggal Lahir'),
                                 TextEntry::make('gender')
                                     ->badge()

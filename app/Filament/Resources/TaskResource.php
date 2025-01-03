@@ -314,16 +314,6 @@ class TaskResource extends Resource implements HasShieldPermissions
                                 'file'      => $data['file'],
                             ]);
 
-                            // Hitung total job_costs dari task terkait
-                            $totalJobCost = \App\Models\JobCost::where('tasks_id', $record->id)
-                                ->sum(DB::raw('mandays + transports + accomodations'));
-
-                            // Update field price_tasks pada tabel quotations
-                            $quotation = $record->quotations;
-                            if ($quotation) {
-                                $quotation->update(['price_tasks' => $totalJobCost]);
-                            }
-
                             // Tampilkan notifikasi sukses
                             Notification::make()
                                 ->title('Job Cost and file saved successfully!')
@@ -378,79 +368,6 @@ class TaskResource extends Resource implements HasShieldPermissions
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    // BulkAction::make('In Progress')
-                    //     ->label('In Progress')
-                    //     ->color('warning')
-                    //     ->icon('heroicon-o-arrow-path')
-                    //     ->form([
-                    //         Forms\Components\DatePicker::make('start_date')
-                    //             ->required()
-                    //             ->native(false)
-                    //             ->displayFormat('d/m/Y'),
-                    //         Forms\Components\Select::make('employees_id')
-                    //             ->required()
-                    //             ->relationship('employees', 'name')
-                    //             ->preload()
-                    //             ->searchable(),
-                    //         Forms\Components\RichEditor::make('notes')
-                    //             ->label('Catatan')
-                    //             ->placeholder('Masukkan catatan untuk status in progress...')
-                    //             ->required(),
-                    //     ])
-                    //     ->action(function ($records, array $data) {
-                    //         // Filter records dengan status 'Completed' atau 'Cancel'
-                    //         $completedRecords = $records->filter(fn($record) => $record->status === 'Completed' || $record->status === 'Cancel');
-
-                    //         // Jika ada record dengan status Completed atau Cancel, beri notifikasi
-                    //         if ($completedRecords->isNotEmpty()) {
-                    //             Notification::make()
-                    //                 ->title('Perhatian')
-                    //                 ->body('Beberapa data yang Anda pilih sudah memiliki status Completed atau Cancel dan tidak dapat diubah.')
-                    //                 ->warning()
-                    //                 ->send();
-                    //         }
-
-                    //         // Update status menjadi 'In Progress' hanya jika statusnya adalah 'Planning'
-                    //         $records->each(function ($record) use ($data) {
-                    //             if ($record->status == 'Planing') {
-                    //                 $record->update([
-                    //                     'status' => 'In Progress',
-                    //                     'start_date' => $data['start_date'],
-                    //                     'employees_id' => $data['employees_id'],
-                    //                     'notes' => $data['notes'], // Update kolom note dari form modal
-                    //                 ]);
-                    //             }
-                    //         });
-                    //     })
-                    //     ->deselectRecordsAfterCompletion(),
-                    // BulkAction::make('Completed')
-                    //     ->label('Completed')
-                    //     ->color('success')
-                    //     ->icon('heroicon-o-check-circle')
-                    //     ->form([
-                    //         Forms\Components\DatePicker::make('end_date')
-                    //             ->required()
-                    //             ->native(false)
-                    //             ->displayFormat('d/m/Y'),
-                    //         Forms\Components\TextInput::make('duration')
-                    //             ->required()
-                    //             ->numeric(),
-                    //         Forms\Components\RichEditor::make('notes')
-                    //             ->label('Catatan')
-                    //             ->placeholder('Masukkan catatan untuk status completed...')
-                    //             ->required(),
-                    //     ])
-                    //     ->action(function ($records, array $data) {
-                    //         $records->each(function ($record) use ($data) {
-                    //             $record->update([
-                    //                 'status' => 'Completed',
-                    //                 'end_date' => $data['end_date'],
-                    //                 'duration' => $data['duration'],
-                    //                 'notes' => $data['notes'], // Update kolom note dari form modal
-                    //             ]);
-                    //         });
-                    //     })
-                    //     ->deselectRecordsAfterCompletion(),
                     BulkAction::make('Cancel')
                         ->label('Cancel')
                         ->color('danger')

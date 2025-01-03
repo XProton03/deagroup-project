@@ -191,6 +191,8 @@ class ComposerStaticInit36b7ee5f0e25f34a1627452ab111b728
         array (
             'Illuminate\\Support\\' => 19,
             'Illuminate\\' => 11,
+            'IbrahimBougaoua\\FilaProgress\\Database\\Factories\\' => 48,
+            'IbrahimBougaoua\\FilaProgress\\' => 29,
         ),
         'G' => 
         array (
@@ -626,6 +628,14 @@ class ComposerStaticInit36b7ee5f0e25f34a1627452ab111b728
         array (
             0 => __DIR__ . '/..' . '/laravel/framework/src/Illuminate',
         ),
+        'IbrahimBougaoua\\FilaProgress\\Database\\Factories\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/ibrahim-bougaoua/filaprogress/database/factories',
+        ),
+        'IbrahimBougaoua\\FilaProgress\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/ibrahim-bougaoua/filaprogress/src',
+        ),
         'GuzzleHttp\\UriTemplate\\' => 
         array (
             0 => __DIR__ . '/..' . '/guzzlehttp/uri-template/src',
@@ -809,7 +819,9 @@ class ComposerStaticInit36b7ee5f0e25f34a1627452ab111b728
         'AnourValar\\EloquentSerialize\\Package' => __DIR__ . '/..' . '/anourvalar/eloquent-serialize/src/Package.php',
         'AnourValar\\EloquentSerialize\\Service' => __DIR__ . '/..' . '/anourvalar/eloquent-serialize/src/Service.php',
         'App\\Filament\\Exports\\EmployeeExporter' => __DIR__ . '/../..' . '/app/Filament/Exports/EmployeeExporter.php',
+        'App\\Filament\\Exports\\TaskExporter' => __DIR__ . '/../..' . '/app/Filament/Exports/TaskExporter.php',
         'App\\Filament\\Exports\\UserExporter' => __DIR__ . '/../..' . '/app/Filament/Exports/UserExporter.php',
+        'App\\Filament\\Pages\\Dashboard' => __DIR__ . '/../..' . '/app/Filament/Pages/Dashboard.php',
         'App\\Filament\\Resources\\CompanyResource' => __DIR__ . '/../..' . '/app/Filament/Resources/CompanyResource.php',
         'App\\Filament\\Resources\\CompanyResource\\Pages\\CreateCompany' => __DIR__ . '/../..' . '/app/Filament/Resources/CompanyResource/Pages/CreateCompany.php',
         'App\\Filament\\Resources\\CompanyResource\\Pages\\EditCompany' => __DIR__ . '/../..' . '/app/Filament/Resources/CompanyResource/Pages/EditCompany.php',
@@ -880,6 +892,7 @@ class ComposerStaticInit36b7ee5f0e25f34a1627452ab111b728
         'App\\Filament\\Resources\\VillageResource\\Pages\\EditVillage' => __DIR__ . '/../..' . '/app/Filament/Resources/VillageResource/Pages/EditVillage.php',
         'App\\Filament\\Resources\\VillageResource\\Pages\\ListVillages' => __DIR__ . '/../..' . '/app/Filament/Resources/VillageResource/Pages/ListVillages.php',
         'App\\Filament\\Widgets\\QuotationChart' => __DIR__ . '/../..' . '/app/Filament/Widgets/QuotationChart.php',
+        'App\\Filament\\Widgets\\QuotationTable' => __DIR__ . '/../..' . '/app/Filament/Widgets/QuotationTable.php',
         'App\\Filament\\Widgets\\StatsAdminOverview' => __DIR__ . '/../..' . '/app/Filament/Widgets/StatsAdminOverview.php',
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
         'App\\Models\\Company' => __DIR__ . '/../..' . '/app/Models/Company.php',
@@ -889,16 +902,19 @@ class ComposerStaticInit36b7ee5f0e25f34a1627452ab111b728
         'App\\Models\\Employee' => __DIR__ . '/../..' . '/app/Models/Employee.php',
         'App\\Models\\EmployementFile' => __DIR__ . '/../..' . '/app/Models/EmployementFile.php',
         'App\\Models\\EmployementStatus' => __DIR__ . '/../..' . '/app/Models/EmployementStatus.php',
+        'App\\Models\\JobCost' => __DIR__ . '/../..' . '/app/Models/JobCost.php',
         'App\\Models\\JobPosition' => __DIR__ . '/../..' . '/app/Models/JobPosition.php',
         'App\\Models\\Province' => __DIR__ . '/../..' . '/app/Models/Province.php',
         'App\\Models\\Quotation' => __DIR__ . '/../..' . '/app/Models/Quotation.php',
         'App\\Models\\QuotationFile' => __DIR__ . '/../..' . '/app/Models/QuotationFile.php',
+        'App\\Models\\QuotationPayment' => __DIR__ . '/../..' . '/app/Models/QuotationPayment.php',
         'App\\Models\\Regency' => __DIR__ . '/../..' . '/app/Models/Regency.php',
         'App\\Models\\Task' => __DIR__ . '/../..' . '/app/Models/Task.php',
         'App\\Models\\TaskExpense' => __DIR__ . '/../..' . '/app/Models/TaskExpense.php',
         'App\\Models\\TaskFile' => __DIR__ . '/../..' . '/app/Models/TaskFile.php',
         'App\\Models\\User' => __DIR__ . '/../..' . '/app/Models/User.php',
         'App\\Models\\Village' => __DIR__ . '/../..' . '/app/Models/Village.php',
+        'App\\Observers\\TaskObserver' => __DIR__ . '/../..' . '/app/Observers/TaskObserver.php',
         'App\\Policies\\CompanyPolicy' => __DIR__ . '/../..' . '/app/Policies/CompanyPolicy.php',
         'App\\Policies\\CustomerPolicy' => __DIR__ . '/../..' . '/app/Policies/CustomerPolicy.php',
         'App\\Policies\\DepartmentPolicy' => __DIR__ . '/../..' . '/app/Policies/DepartmentPolicy.php',
@@ -3226,6 +3242,13 @@ class ComposerStaticInit36b7ee5f0e25f34a1627452ab111b728
         'Hamcrest\\Type\\IsString' => __DIR__ . '/..' . '/hamcrest/hamcrest-php/hamcrest/Hamcrest/Type/IsString.php',
         'Hamcrest\\Util' => __DIR__ . '/..' . '/hamcrest/hamcrest-php/hamcrest/Hamcrest/Util.php',
         'Hamcrest\\Xml\\HasXPath' => __DIR__ . '/..' . '/hamcrest/hamcrest-php/hamcrest/Hamcrest/Xml/HasXPath.php',
+        'IbrahimBougaoua\\FilaProgress\\Facades\\FilaProgress' => __DIR__ . '/..' . '/ibrahim-bougaoua/filaprogress/src/Facades/FilaProgress.php',
+        'IbrahimBougaoua\\FilaProgress\\FilaProgress' => __DIR__ . '/..' . '/ibrahim-bougaoua/filaprogress/src/FilaProgress.php',
+        'IbrahimBougaoua\\FilaProgress\\FilaProgressServiceProvider' => __DIR__ . '/..' . '/ibrahim-bougaoua/filaprogress/src/FilaProgressServiceProvider.php',
+        'IbrahimBougaoua\\FilaProgress\\Infolists\\Components\\CircleProgressEntry' => __DIR__ . '/..' . '/ibrahim-bougaoua/filaprogress/src/Infolists/Components/CircleProgressEntry.php',
+        'IbrahimBougaoua\\FilaProgress\\Infolists\\Components\\ProgressBarEntry' => __DIR__ . '/..' . '/ibrahim-bougaoua/filaprogress/src/Infolists/Components/ProgressBarEntry.php',
+        'IbrahimBougaoua\\FilaProgress\\Tables\\Columns\\CircleProgress' => __DIR__ . '/..' . '/ibrahim-bougaoua/filaprogress/src/Tables/Columns/CircleProgress.php',
+        'IbrahimBougaoua\\FilaProgress\\Tables\\Columns\\ProgressBar' => __DIR__ . '/..' . '/ibrahim-bougaoua/filaprogress/src/Tables/Columns/ProgressBar.php',
         'Illuminate\\Auth\\Access\\AuthorizationException' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Auth/Access/AuthorizationException.php',
         'Illuminate\\Auth\\Access\\Events\\GateEvaluated' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Auth/Access/Events/GateEvaluated.php',
         'Illuminate\\Auth\\Access\\Gate' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Auth/Access/Gate.php',
