@@ -2,7 +2,10 @@
 
 namespace App\Filament\Resources;
 
+use Carbon\Carbon;
 use Filament\Forms;
+use App\Models\User;
+use App\Models\EmployementFile;
 use Filament\Tables;
 use Filament\Forms\Set;
 use App\Models\Employee;
@@ -13,11 +16,14 @@ use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Forms\Get as FormsGet;
 use Filament\Tables\Actions\Action;
+use Filament\Forms\Components\Select;
 use Filament\Tables\Actions\BulkAction;
 use Illuminate\Support\Facades\Storage;
 use Filament\Infolists\Components\Split;
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Exports\EmployeeExporter;
 use Filament\Infolists\Components\Section;
@@ -42,6 +48,11 @@ class EmployeeResource extends Resource implements HasShieldPermissions
     protected static ?string $label = 'Employee';
     protected static ?string $slug = 'employee';
     protected static ?int $navigationSort = 21;
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
 
     public static function getPermissionPrefixes(): array
     {
@@ -189,13 +200,40 @@ class EmployeeResource extends Resource implements HasShieldPermissions
                             ->displayFormat('d/m/Y')
                     ])
                     ->columns('3'),
+                // Forms\Components\Repeater::make('Employee Files')
+                //     ->relationship('employement_files')
+                //     ->schema([
+                //         Forms\Components\TextInput::make('file_name')
+                //             ->required()
+                //             ->maxLength(255),
+                //         Forms\Components\FileUpload::make('file')
+                //             ->required()
+                //             ->columnSpan(2)
+                //             ->preserveFilenames()
+                //             ->maxSize(5120)
+                //             ->openable()
+                //             ->disk('nas')
+                //             ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png'])
+                //             ->directory('employees')
+                //             ->imageEditor()
+                //             ->imageEditorAspectRatios([
+                //                 null,
+                //                 '16:9',
+                //                 '4:3',
+                //                 '1:1',
+                //             ])
+                //     ])
             ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('created_at', 'desc')
             ->columns([
+                Tables\Columns\TextColumn::make('created_at')
+                    ->since()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('employee_code')
                     ->label('NIP')
                     ->searchable(),
@@ -214,9 +252,44 @@ class EmployeeResource extends Resource implements HasShieldPermissions
                 Tables\Columns\TextColumn::make('employement_statuses.status_name')
                     ->label('Status')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('contract_end_date')
+                    ->label('Status Kontrak')
+                    ->badge()
+                    ->icon('heroicon-o-clock')
+                    ->formatStateUsing(function ($state) {
+                        if ($state) {
+                            $endDate = \Carbon\Carbon::parse($state);
+                            $remainingDays = now()->diffInDays($endDate, false);
+
+                            if ($remainingDays > 0) {
+                                return "Sisa " . round($remainingDays) . " hari";
+                            } elseif ($remainingDays === 0) {
+                                return "Kontrak Berakhir Hari Ini";
+                            } else {
+                                return "Kontrak Berakhir";
+                            }
+                        }
+                        return "Tidak Ada Kontrak";
+                    })
+                    ->color(fn($state) => str_contains($state, 'Sisa ') ? 'success' : 'danger')
+                    ->searchable(),
             ])
             ->filters([
-                //
+                SelectFilter::make('status')
+                    ->relationship('employement_statuses', 'status_name')
+                    ->searchable()
+                    ->preload()
+                    ->multiple(),
+                SelectFilter::make('jabatan')
+                    ->relationship('job_positions', 'position_name')
+                    ->searchable()
+                    ->preload()
+                    ->multiple(),
+                SelectFilter::make('department')
+                    ->relationship('departments', 'department_name')
+                    ->searchable()
+                    ->preload()
+                    ->multiple(),
             ])
             ->actions([
                 ActionGroup::make([
@@ -224,6 +297,32 @@ class EmployeeResource extends Resource implements HasShieldPermissions
                         ->icon('heroicon-o-eye'),
                     Tables\Actions\EditAction::make(),
                     Tables\Actions\DeleteAction::make(),
+                    Action::make('set_user_id')
+                        ->label('Set User ID')
+                        ->icon('heroicon-o-user-circle')
+                        ->color('primary')
+                        ->form([
+                            Select::make('user_id')
+                                ->label('User')
+                                ->options(User::query()->pluck('name', 'id'))
+                                ->required(),
+                        ])
+                        ->action(function ($record, array $data) {
+                            if (!isset($data['user_id'])) {
+                                Notification::make()
+                                    ->title('User ID is required!')
+                                    ->danger()
+                                    ->send();
+                                return;
+                            }
+
+                            $record->update(['user_id' => $data['user_id']]);
+
+                            Notification::make()
+                                ->title('User ID updated successfully!')
+                                ->success()
+                                ->send();
+                        }),
                     Action::make('activities')
                         ->url(fn($record) => EmployeeResource::getUrl('activities', ['record' => $record]))
                         ->icon('heroicon-o-clock')
@@ -244,8 +343,8 @@ class EmployeeResource extends Resource implements HasShieldPermissions
                             foreach ($records as $employee) {
                                 // 🗂 Hapus semua file terkait di quotation_files
                                 $employee->employement_files()->each(function ($file) {
-                                    if (Storage::disk('public')->exists($file->file)) {
-                                        Storage::disk('public')->delete($file->file);
+                                    if (Storage::disk('nas')->exists($file->file)) {
+                                        Storage::disk('nas')->delete($file->file);
                                     }
                                     $file->delete();
                                 });
@@ -314,9 +413,11 @@ class EmployeeResource extends Resource implements HasShieldPermissions
                                     ->label('Jabatan'),
                                 TextEntry::make('contract_start_date')
                                     ->label('Mulai Kontrak')
+                                    ->badge()
                                     ->date(),
                                 TextEntry::make('contract_end_date')
                                     ->label('Selesai Kontrak')
+                                    ->badge()
                                     ->date(),
                             ])->columns(3),
                     ])

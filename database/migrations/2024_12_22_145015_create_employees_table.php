@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('employees', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('departments_id')->constrained('departments')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreignId('provinces_id')->constrained('provinces')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreignId('regencies_id')->constrained('regencies')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreignId('districts_id')->constrained('districts')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreignId('villages_id')->constrained('villages')->cascadeOnUpdate()->cascadeOnDelete()->nullable();
+            $table->foreignId('departments_id')->constrained('departments')->cascadeOnUpdate();
+            $table->foreignId('provinces_id')->constrained('provinces')->cascadeOnUpdate();
+            $table->foreignId('regencies_id')->constrained('regencies')->cascadeOnUpdate();
+            $table->foreignId('districts_id')->constrained('districts')->cascadeOnUpdate();
+            $table->foreignId('villages_id')->constrained('villages')->cascadeOnUpdate()->nullable();
             $table->string('employee_code')->nullable();
             $table->string('name')->nullable();
             $table->string('gender')->nullable();
@@ -27,8 +27,9 @@ return new class extends Migration
             $table->text('address')->nullable();
             $table->date('contract_start_date')->nullable();
             $table->date('contract_end_date')->nullable();
-            $table->foreignId('employement_statuses_id')->constrained('employement_statuses')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreignId('job_positions_id')->constrained('job_positions')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('employement_statuses_id')->constrained('employement_statuses')->cascadeOnUpdate();
+            $table->foreignId('job_positions_id')->constrained('job_positions')->cascadeOnUpdate();
+            $table->foreignId('user_id')->nullable()->constrained('users');
             $table->timestamps();
         });
     }

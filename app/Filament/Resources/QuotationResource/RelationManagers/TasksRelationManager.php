@@ -33,7 +33,7 @@ class TasksRelationManager extends RelationManager
                     ->preload()
                     ->searchable()
                     ->getOptionLabelFromRecordUsing(function ($record) {
-                        return $record->company_name . ' - ' . ($record->villages->name ?? 'N/A');
+                        return $record->company_name . ' - ' . ($record->villages->districts->regencies->name ?? 'N/A');
                     }),
                 Forms\Components\TextInput::make('pic')
                     ->required()
@@ -85,7 +85,7 @@ class TasksRelationManager extends RelationManager
                     ->searchable(),
                 Tables\Columns\TextColumn::make('companies.company_name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('companies.villages.name')
+                Tables\Columns\TextColumn::make('companies.villages.districts.regencies.name')
                     ->label('Location')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('schedule')

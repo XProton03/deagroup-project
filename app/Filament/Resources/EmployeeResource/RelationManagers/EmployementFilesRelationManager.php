@@ -5,16 +5,20 @@ namespace App\Filament\Resources\EmployeeResource\RelationManagers;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
-use Filament\Notifications\Notification;
 use Filament\Tables\Table;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\BulkAction;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Storage;
+use Filament\Notifications\Notification;
 use Filament\Tables\Actions\ActionGroup;
+use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Resources\RelationManagers\RelationManager;
+use Joshembling\ImageOptimizer\Components\SpatieMediaLibraryFileUpload;
+use Joshembling\ImageOptimizer\Facades\ImageOptimizer;
+use Joshembling\ImageOptimizer\OptimizerChainFactory;
 
 class EmployementFilesRelationManager extends RelationManager
 {
@@ -27,15 +31,28 @@ class EmployementFilesRelationManager extends RelationManager
                 Forms\Components\TextInput::make('file_name')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\FileUpload::make('file')
+                // Forms\Components\Select::make('folder_name')
+                //     ->label('Folder Name')
+                //     ->searchable()
+                //     ->options(function () {
+                //         // Ambil daftar folder dari database
+                //         return \App\Models\EmployementFile::select('folder_name')
+                //             ->distinct()
+                //             ->pluck('folder_name', 'folder_name');
+                //     })
+                //     ->placeholder('Choose or type a folder name')
+                //     ->helperText('Choose from existing folders or type a new one.')
+                //     ->required(),
+                FileUpload::make('file')
                     ->required()
                     ->columnSpan(2)
                     ->preserveFilenames()
                     ->maxSize(5120)
                     ->openable()
+                    ->disk('nas')
                     ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png'])
-                    ->imageEditor()
                     ->directory('employees')
+                    ->imageEditor()
                     ->imageEditorAspectRatios([
                         null,
                         '16:9',
@@ -53,7 +70,7 @@ class EmployementFilesRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('file_name'),
                 Tables\Columns\TextColumn::make('file')
                     ->label('File')
-                    ->url(fn($record) => asset('storage/' . $record->file)) // Menyesuaikan dengan path file Anda
+                    ->url(fn($record) => 'http://192.168.20.244/files/' . $record->file) // Menyesuaikan dengan path file Anda
                     ->openUrlInNewTab(),
             ])
             ->filters([
@@ -66,12 +83,25 @@ class EmployementFilesRelationManager extends RelationManager
                 ActionGroup::make([
                     Tables\Actions\EditAction::make(),
                     Tables\Actions\DeleteAction::make()->action(function ($record) {
-                        // Hapus file dengan disk storage
-                        if ($record->file && Storage::disk('public')->exists($record->file)) {
-                            Storage::disk('public')->delete($record->file);
+                        try {
+                            // Hapus file dengan disk storage
+                            if ($record->file && Storage::disk('nas')->exists($record->file)) {
+                                Storage::disk('nas')->delete($record->file);
+                            }
+                            Notification::make()
+                                ->title('Files deleted successfully!')
+                                ->success()
+                                ->send();
+                            // Hapus data dari database
+                            $record->delete();
+                        } catch (\Exception $e) {
+                            // Kirim notifikasi jika terjadi error
+                            Notification::make()
+                                ->title('Error deleting file!')
+                                ->danger()
+                                ->body($e->getMessage())
+                                ->send();
                         }
-                        // Hapus data dari database
-                        $record->delete();
                     }),
                 ])
             ])
@@ -82,7 +112,7 @@ class EmployementFilesRelationManager extends RelationManager
                         ->action(function (Collection $records) {
                             foreach ($records as $record) {
                                 // Hapus file dari storage
-                                Storage::disk('public')->delete($record->file);
+                                Storage::disk('nas')->delete($record->file);
 
                                 // Hapus record dari database
                                 $record->delete();

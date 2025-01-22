@@ -33,6 +33,9 @@ class ListQuotations extends ListRecords
             'Payment Process' => Tab::make()
                 ->modifyQueryUsing(fn(Builder $query) => $query->where('status', '=', 'Payment Process'))
                 ->badge(Quotation::query()->where('status', '=', 'Payment Process')->count()),
+            'Cancel' => Tab::make()
+                ->modifyQueryUsing(fn(Builder $query) => $query->where('status', '=', 'Cancel'))
+                ->badge(Quotation::query()->where('status', '=', 'Cancel')->count()),
         ];
     }
 }

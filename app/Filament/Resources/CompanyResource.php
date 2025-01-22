@@ -67,6 +67,12 @@ class CompanyResource extends Resource implements HasShieldPermissions
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('villages.districts.regencies.provinces.name')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('villages.districts.regencies.name')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('villages.districts.name')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('villages.name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('company_name')

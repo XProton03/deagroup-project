@@ -25,6 +25,7 @@ class TaskfilesRelationManager extends RelationManager
                     ->maxLength(255),
                 Forms\Components\FileUpload::make('file')
                     ->columnSpanFull()
+                    ->disk('nas')
                     ->directory('tasks')
                     ->preserveFilenames()
                     ->maxSize(2048)
@@ -54,7 +55,7 @@ class TaskfilesRelationManager extends RelationManager
                 ActionGroup::make([
                     Tables\Actions\Action::make('file')
                         ->label('Open File')
-                        ->url(fn($record) => $record->file ? asset('storage/' . $record->file) : null)
+                        ->url(fn($record) => 'http://192.168.20.244/files/' . $record->file)
                         ->openUrlInNewTab()
                         ->icon('heroicon-o-document')
                         ->color('primary'),

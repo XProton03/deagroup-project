@@ -31,6 +31,7 @@ class Employee extends Model
         'contract_end_date',
         'employement_statuses_id',
         'job_positions_id',
+        'user_id',
     ];
 
     public function getActivitylogOptions(): LogOptions
@@ -71,8 +72,14 @@ class Employee extends Model
         // Periksa jika status karyawan berubah menjadi karyawan tetap
         static::updating(function ($employee) {
             // Jika status berubah menjadi karyawan tetap, regenerate employee_code
-            if ($employee->isDirty('employement_statuses_id') && $employee->employement_statuses_id == 1) {
-                $employee->employee_code = self::generateEmployeeCode($employee);
+            if ($employee->isDirty('employement_statuses_id')) {
+                if ($employee->employement_statuses_id == 1) {
+                    // Jika menjadi karyawan tetap
+                    $employee->employee_code = self::generateEmployeeCode($employee);
+                } elseif ($employee->getOriginal('employement_statuses_id') == 1 && $employee->employement_statuses_id != 1) {
+                    // Jika dari karyawan tetap menjadi tidak tetap
+                    $employee->employee_code = self::generateEmployeeCode($employee);
+                }
             }
         });
     }
@@ -132,5 +139,9 @@ class Employee extends Model
     public function employement_files(): HasMany
     {
         return $this->hasMany(EmployementFile::class, 'employees_id');
+    }
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

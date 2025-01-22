@@ -11,6 +11,8 @@ class Quotation extends Model
 {
     use HasFactory, LogsActivity;
 
+
+
     protected $table = 'quotations';
     protected $fillable = [
         'quotation_number',
@@ -26,7 +28,6 @@ class Quotation extends Model
         'status',
         'employees_id',
         'notes'
-
     ];
     protected static function boot()
     {

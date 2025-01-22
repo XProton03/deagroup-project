@@ -11,6 +11,7 @@ use Illuminate\Support\Carbon;
 use Filament\Actions\ViewAction;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
+use Illuminate\Support\Facades\DB;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Select;
@@ -25,6 +26,7 @@ use Filament\Forms\Components\RichEditor;
 use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\Wizard\Step;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\Fieldset;
 use Filament\Infolists\Components\TextEntry;
@@ -32,9 +34,8 @@ use Filament\Tables\Actions\ExportBulkAction;
 use App\Filament\Resources\TaskResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\TaskResource\RelationManagers;
-use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms\Components\Fieldset as ComponentsFieldset;
-use Illuminate\Support\Facades\DB;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 
 
 class TaskResource extends Resource implements HasShieldPermissions
@@ -89,7 +90,7 @@ class TaskResource extends Resource implements HasShieldPermissions
                             ->preload()
                             ->searchable()
                             ->getOptionLabelFromRecordUsing(function ($record) {
-                                return $record->company_name . ' - ' . ($record->villages->name ?? 'N/A');
+                                return $record->company_name . ' - ' . ($record->villages->districts->regencies->name ?? 'N/A');
                             }),
                         Forms\Components\TextInput::make('pic')
                             ->required()
@@ -121,6 +122,7 @@ class TaskResource extends Resource implements HasShieldPermissions
                             ->options([
                                 'Planing' => 'Planing',
                                 'In Progress' => 'In Progress',
+                                'Document Progress' => 'Document Progress',
                                 'Completed' => 'Completed',
                                 'Cancel' => 'Cancel',
                             ])
@@ -138,7 +140,7 @@ class TaskResource extends Resource implements HasShieldPermissions
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('created_at')
-                    ->date()
+                    ->since()
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('quotations.quotation_number')
@@ -147,7 +149,7 @@ class TaskResource extends Resource implements HasShieldPermissions
                     ->searchable(),
                 Tables\Columns\TextColumn::make('companies.company_name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('companies.villages.name')
+                Tables\Columns\TextColumn::make('companies.villages.districts.regencies.name')
                     ->label('Location')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('schedule')
@@ -221,7 +223,7 @@ class TaskResource extends Resource implements HasShieldPermissions
                                 ->searchable(),
                             Forms\Components\RichEditor::make('notes')
                                 ->label('Catatan')
-                                ->placeholder('Masukkan catatan untuk status completed...')
+                                ->placeholder('Masukkan catatan untuk status inprogress...')
                                 ->required(),
                         ])
                         ->action(function (array $data, $record) {
@@ -239,6 +241,7 @@ class TaskResource extends Resource implements HasShieldPermissions
                                 ->success()
                                 ->send();
                         })
+                        ->slideOver()
                         ->icon('heroicon-o-cog-8-tooth'),
                     Action::make('document_progress')
                         ->label('Document Progress')
@@ -254,7 +257,7 @@ class TaskResource extends Resource implements HasShieldPermissions
                                 ->numeric(),
                             Forms\Components\RichEditor::make('notes')
                                 ->label('Catatan')
-                                ->placeholder('Masukkan catatan untuk status completed...')
+                                ->placeholder('Masukkan catatan...')
                                 ->required(),
                         ])
                         ->action(function (array $data, $record) {
@@ -272,32 +275,43 @@ class TaskResource extends Resource implements HasShieldPermissions
                                 ->success()
                                 ->send();
                         })
+                        ->slideOver()
                         ->icon('heroicon-o-currency-dollar'),
                     Action::make('completed')
                         ->label('Completed')
                         ->visible(fn($record): bool => $record->status === 'Document Progress')
                         ->color('success')
-                        ->form([
-                            Forms\Components\TextInput::make('mandays')
-                                ->required()
-                                ->numeric(),
-                            Forms\Components\TextInput::make('transports')
-                                ->required()
-                                ->numeric(),
-                            Forms\Components\TextInput::make('accomodations')
-                                ->required()
-                                ->numeric(),
-                            Forms\Components\TextInput::make('file_name')
-                                ->required()
-                                ->columnSpanFull()
-                                ->maxLength(255),
-                            Forms\Components\FileUpload::make('file')
-                                ->columnSpanFull()
-                                ->directory('tasks')
-                                ->preserveFilenames()
-                                ->maxSize(2048)
-                                ->openable()
-                                ->acceptedFileTypes(['application/pdf']),
+                        ->steps([
+                            Step::make('Upload file BAST')
+                                ->description('Pastikan file diupload lengkap dan sesuai dengan data yang ada.')
+                                ->schema([
+                                    Forms\Components\TextInput::make('file_name')
+                                        ->required()
+                                        ->columnSpanFull()
+                                        ->maxLength(255),
+                                    Forms\Components\FileUpload::make('file')
+                                        ->columnSpanFull()
+                                        ->disk('nas')
+                                        ->directory('tasks')
+                                        ->preserveFilenames()
+                                        ->maxSize(2048)
+                                        ->openable()
+                                        ->acceptedFileTypes(['application/pdf']),
+                                ]),
+                            Step::make('Harga')
+                                ->description('Masukan harga sesuai dengan pricelist dan durasi pekerjaan.')
+                                ->schema([
+                                    Forms\Components\TextInput::make('mandays')
+                                        ->required()
+                                        ->numeric(),
+                                    Forms\Components\TextInput::make('transports')
+                                        ->required()
+                                        ->numeric(),
+                                    Forms\Components\TextInput::make('accomodations')
+                                        ->required()
+                                        ->numeric(),
+                                ])
+                                ->columns(3),
                         ])
                         ->action(function (array $data, $record) {
                             $record->update(['status' => 'Completed']);
@@ -321,6 +335,31 @@ class TaskResource extends Resource implements HasShieldPermissions
                                 ->send();
                         })
                         ->icon('heroicon-o-check-circle'),
+                    Action::make('cancel')
+                        ->label('Set to Cancel')
+                        ->visible(fn($record): bool => $record->status === 'Planing')
+                        ->color('danger')
+                        ->form([
+                            Forms\Components\RichEditor::make('notes')
+                                ->label('Catatan')
+                                ->placeholder('Masukkan catatan untuk status cancel...')
+                                ->required(),
+                        ])
+                        ->action(function (array $data, $record) {
+                            // Simpan data ke database
+                            \App\Models\Task::where('id', $record->id)->update([
+                                'status'        => 'Cancel',
+                                'notes'         => $data['notes'],
+                            ]);
+
+                            // Tampilkan notifikasi sukses
+                            Notification::make()
+                                ->title('Set to Cancel successfully!')
+                                ->success()
+                                ->send();
+                        })
+                        ->slideOver()
+                        ->icon('heroicon-o-x-circle'),
                     Action::make('files')
                         ->label('Expenses')
                         ->color('primary')
@@ -332,23 +371,26 @@ class TaskResource extends Resource implements HasShieldPermissions
                                 ->options([
                                     'MCU' => 'MCU',
                                     'Surat Sehat' => 'Surat Sehat',
+                                    'Jasa' => 'Jasa',
+                                    'Transport' => 'Transport',
+                                    'Penginapan' => 'Penginapan',
                                     'Lainnya' => 'Lainnya',
                                 ])
                                 ->searchable(),
                             Forms\Components\FileUpload::make('file')
                                 ->columnSpanFull()
-                                ->directory('tasks')
+                                ->disk('nas')
+                                ->directory('expenses')
                                 ->preserveFilenames()
                                 ->maxSize(2048)
                                 ->openable()
-                                ->acceptedFileTypes(['application/pdf']),
+                                ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png']),
                             Forms\Components\RichEditor::make('description')
                                 ->columnSpanFull(),
                         ])
                         ->action(function (array $data, $record) {
-                            $record->update(['status' => 'Completed']);
                             // Simpan data ke database
-                            \App\Models\TaskFile::create([
+                            \App\Models\TaskExpense::create([
                                 'tasks_id'      => $record->id,
                                 'ammount'       => $data['ammount'],
                                 'type'          => $data['type'],
@@ -468,7 +510,7 @@ class TaskResource extends Resource implements HasShieldPermissions
                                     ->iconColor('warning'),
                                 TextEntry::make('companies.company_name')
                                     ->label('Perusahaan'),
-                                TextEntry::make('companies.villages.name')
+                                TextEntry::make('companies.villages.districts.regencies.name')
                                     ->icon('heroicon-o-map-pin')
                                     ->iconColor('warning')
                                     ->label('Location'),

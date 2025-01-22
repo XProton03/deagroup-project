@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('quotations_id')->constrained('quotations')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('quotations_id')->constrained('quotations')->cascadeOnUpdate();
             $table->string('task_number')->nullable();
-            $table->foreignId('companies_id')->constrained('companies')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('companies_id')->constrained('companies')->cascadeOnUpdate();
             $table->string('pic')->nullable();
             $table->unsignedInteger('phone')->nullable();
             $table->text('short_description')->nullable();
@@ -24,7 +24,7 @@ return new class extends Migration
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
             $table->unsignedInteger('duration')->nullable();
-            $table->foreignId('employees_id')->constrained('employees')->cascadeOnUpdate()->cascadeOnDelete()->nullable();
+            $table->foreignId('employees_id')->constrained('employees')->cascadeOnUpdate()->nullable();
             $table->string('status')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();

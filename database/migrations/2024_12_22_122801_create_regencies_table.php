@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('regencies', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('provinces_id')->constrained('provinces')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('provinces_id')->constrained('provinces')->cascadeOnUpdate();
             $table->string('name');
             $table->timestamps();
         });

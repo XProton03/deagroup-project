@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('quotation_payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('quotations_id')->constrained('quotations')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreignId('users_id')->constrained('users')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('users_id')->constrained('users')->cascadeOnUpdate();
             $table->date('payment_date')->nullable();
             $table->string('payment_number')->nullable();
             $table->string('notes')->nullable();

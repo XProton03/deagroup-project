@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Set;
+use App\Models\Employee;
 use Filament\Forms\Form;
 use App\Models\Quotation;
 use Filament\Tables\Table;
@@ -42,7 +43,7 @@ class QuotationResource extends Resource implements HasShieldPermissions
 
     protected static ?string $navigationIcon = 'heroicon-o-folder';
     protected static ?string $navigationGroup = 'Project Management';
-    protected static ?string $navigationLabel = 'Project';
+    protected static ?string $navigationLabel = 'Project Work';
     protected static ?string $label = 'Project';
     protected static ?string $slug = 'project';
     protected static ?int $navigationSort = 11;
@@ -155,7 +156,10 @@ class QuotationResource extends Resource implements HasShieldPermissions
                             ->default('Open'),
                         Forms\Components\Select::make('employees_id')
                             ->label('PIC')
-                            ->relationship(name: 'employees', titleAttribute: 'name')
+                            ->options(
+                                Employee::whereNotNull('user_id')
+                                    ->pluck('name', 'id')
+                            )
                             ->searchable()
                             ->preload()
                             ->required(),
@@ -171,6 +175,9 @@ class QuotationResource extends Resource implements HasShieldPermissions
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('created_at')
+                    ->since()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('quotation_number')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('quotation_payment.payment_number')
@@ -201,12 +208,19 @@ class QuotationResource extends Resource implements HasShieldPermissions
                         'Open'              => 'primary',
                         'Payment Process'   => 'warning',
                         'Completed'         => 'success',
+                        'Cancel'            => 'danger',
                     ][$state] ?? 'secondary')
                     ->icon(fn($state) => [
                         'Open'              => 'heroicon-o-clock',
                         'Payment Process'   => 'heroicon-o-credit-card',
                         'Completed'         => 'heroicon-o-check-circle',
+                        'Cancel'             => 'heroicon-o-x-circle',
                     ][$state] ?? 'secondary'),
+                Tables\Columns\TextColumn::make('employees.name')
+                    ->icon('heroicon-o-user-circle')
+                    ->badge()
+                    ->label('PIC')
+                    ->searchable(),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
@@ -242,6 +256,31 @@ class QuotationResource extends Resource implements HasShieldPermissions
                     Tables\Actions\ViewAction::make(),
                     Tables\Actions\EditAction::make(),
                     Tables\Actions\DeleteAction::make(),
+                    Action::make('cancel')
+                        ->label('Set to Cancel')
+                        ->color('danger')
+                        ->visible(fn($record) => $record->status !== 'Cancel')
+                        ->form([
+                            Forms\Components\RichEditor::make('notes')
+                                ->label('Catatan')
+                                ->placeholder('Masukkan catatan untuk status cancel...')
+                                ->required(),
+                        ])
+                        ->action(function (array $data, $record) {
+                            // Simpan data ke database
+                            \App\Models\Quotation::where('id', $record->id)->update([
+                                'status'        => 'Cancel',
+                                'notes'         => $data['notes'],
+                            ]);
+
+                            // Tampilkan notifikasi sukses
+                            Notification::make()
+                                ->title('Set to Cancel successfully!')
+                                ->success()
+                                ->send();
+                        })
+                        ->icon('heroicon-o-x-circle')
+                        ->slideOver(),
                     Action::make('activities')
                         ->url(fn($record) => QuotationResource::getUrl('activities', ['record' => $record]))
                         ->icon('heroicon-o-clock')
@@ -289,7 +328,8 @@ class QuotationResource extends Resource implements HasShieldPermissions
                                     ->send();
                             }
                         })
-                        ->icon('heroicon-o-credit-card'),
+                        ->icon('heroicon-o-credit-card')
+                        ->slideOver(),
                     //Tables\Actions\DeleteBulkAction::make(),
                     BulkAction::make('delete')
                         ->label('Delete Selected')

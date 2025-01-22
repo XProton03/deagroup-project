@@ -17,7 +17,9 @@ class QuotationTable extends BaseWidget
     {
         return $table
             ->query(
-                Quotation::query()->where('status', '!=', 'Completed')
+                Quotation::query()
+                    ->where('status', '!=', 'Completed')
+                    ->where('status', '!=', 'Cancel')
             )
             ->defaultSort('created_at', 'desc')
             ->columns([
@@ -32,6 +34,7 @@ class QuotationTable extends BaseWidget
                         'Open'              => 'primary',
                         'Payment Process'   => 'warning',
                         'Completed'         => 'success',
+                        'Cancel'            => 'danger',
                     ][$state] ?? 'secondary'),
             ]);
     }
