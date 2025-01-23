@@ -67,7 +67,7 @@ class TaskExpensesRelationManager extends RelationManager
                     Tables\Actions\EditAction::make(),
                     Tables\Actions\Action::make('file')
                         ->label('Open File')
-                        ->url(fn($record) => 'http://192.168.20.244/files/' . $record->file)
+                        ->url(fn($record) => 'http://192.168.2.56/files/' . $record->file)
                         ->openUrlInNewTab()
                         ->icon('heroicon-o-document')
                         ->color('primary'),

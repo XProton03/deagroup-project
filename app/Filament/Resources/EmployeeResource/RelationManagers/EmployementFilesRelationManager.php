@@ -70,7 +70,7 @@ class EmployementFilesRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('file_name'),
                 Tables\Columns\TextColumn::make('file')
                     ->label('File')
-                    ->url(fn($record) => 'http://192.168.20.244/files/' . $record->file) // Menyesuaikan dengan path file Anda
+                    ->url(fn($record) => 'http://192.168.2.56/files/' . $record->file) // Menyesuaikan dengan path file Anda
                     ->openUrlInNewTab(),
             ])
             ->filters([
