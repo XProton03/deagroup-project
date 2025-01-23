@@ -59,8 +59,8 @@ return [
 
         'nas' => [
             'driver' => 'local',
-            'root' => '\\\\192.168.20.244\\web\\files', // Path NAS di Windows
-            'url' => 'http://192.168.20.244/files/',
+            'root' => '\\\\192.168.2.56\\web\\files', // Path NAS di Windows
+            'url' => 'http://192.168.2.56/files/',
             'visibility' => 'public',
         ],
 
