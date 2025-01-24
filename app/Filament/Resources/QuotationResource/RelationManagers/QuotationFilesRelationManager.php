@@ -35,6 +35,12 @@ class QuotationFilesRelationManager extends RelationManager
                     ->maxSize(2048)
                     ->openable()
                     ->acceptedFileTypes(['application/pdf'])
+                    ->deleteUploadedFileUsing(function ($file, $record) {
+                        if ($record && $record->file) {
+                            // Hapus file lama
+                            Storage::disk('nas')->delete($record->file);
+                        }
+                    }),
             ]);
     }
 
