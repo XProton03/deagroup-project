@@ -55,7 +55,7 @@ class TaskfilesRelationManager extends RelationManager
                 ActionGroup::make([
                     Tables\Actions\Action::make('file')
                         ->label('Open File')
-                        ->url(fn($record) => 'http://192.168.2.56/files/' . $record->file)
+                        ->url(fn($record) => asset('storage/file_upload/' . $record->file))
                         ->openUrlInNewTab()
                         ->icon('heroicon-o-document')
                         ->color('primary'),
