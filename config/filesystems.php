@@ -59,9 +59,9 @@ return [
 
         'nas' => [
             'driver' => 'local',
-            'root' => '/mnt/nas_web/files', // Path NAS di Windows
+            'root' => storage_path('app/public/file_upload'),
+            'url' => env('APP_URL') . '/storage/file_upload',
             'visibility' => 'public',
-            'throw' => true,
         ],
 
     ],
