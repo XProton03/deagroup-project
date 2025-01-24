@@ -63,8 +63,8 @@ class QuotationFilesRelationManager extends RelationManager
                     Tables\Actions\EditAction::make(),
                     Tables\Actions\DeleteAction::make()->action(function ($record) {
                         // Hapus file dengan disk storage
-                        if ($record->file && Storage::disk('public')->exists($record->file)) {
-                            Storage::disk('public')->delete($record->file);
+                        if ($record->file && Storage::disk('nas')->exists($record->file)) {
+                            Storage::disk('nas')->delete($record->file);
                         }
                         // Hapus data dari database
                         $record->delete();
