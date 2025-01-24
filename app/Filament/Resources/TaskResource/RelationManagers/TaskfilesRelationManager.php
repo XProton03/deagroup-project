@@ -7,7 +7,11 @@ use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\BulkAction;
+use Filament\Notifications\Notification;
+use Illuminate\Database\Eloquent\Collection;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -60,12 +64,36 @@ class TaskfilesRelationManager extends RelationManager
                         ->icon('heroicon-o-document')
                         ->color('primary'),
                     Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make(),
+                    Tables\Actions\DeleteAction::make()->action(function ($record) {
+                        // Hapus file dengan disk storage
+                        if ($record->file && Storage::disk('nas')->exists($record->file)) {
+                            Storage::disk('nas')->delete($record->file);
+                        }
+                        // Hapus data dari database
+                        $record->delete();
+                    }),
                 ])
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    BulkAction::make('delete_files')
+                        ->label('Delete Files')
+                        ->action(function (Collection $records) {
+                            foreach ($records as $record) {
+                                // Hapus file dari storage
+                                Storage::disk('nas')->delete($record->file);
+
+                                // Hapus record dari database
+                                $record->delete();
+                            }
+                            Notification::make()
+                                ->title('Files deleted successfully!')
+                                ->success()
+                                ->send();
+                        })
+                        ->requiresConfirmation()
+                        ->color('danger')
+                        ->icon('heroicon-o-trash'),
                 ]),
             ]);
     }

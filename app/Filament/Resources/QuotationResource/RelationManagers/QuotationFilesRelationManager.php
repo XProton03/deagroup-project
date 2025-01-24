@@ -9,6 +9,9 @@ use Filament\Tables;
 use Filament\Tables\Actions\ActionGroup;
 use Illuminate\Support\Facades\Storage;
 use Filament\Tables\Table;
+use Filament\Tables\Actions\BulkAction;
+use Filament\Notifications\Notification;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -73,7 +76,24 @@ class QuotationFilesRelationManager extends RelationManager
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    BulkAction::make('delete_files')
+                        ->label('Delete Files')
+                        ->action(function (Collection $records) {
+                            foreach ($records as $record) {
+                                // Hapus file dari storage
+                                Storage::disk('nas')->delete($record->file);
+
+                                // Hapus record dari database
+                                $record->delete();
+                            }
+                            Notification::make()
+                                ->title('Files deleted successfully!')
+                                ->success()
+                                ->send();
+                        })
+                        ->requiresConfirmation()
+                        ->color('danger')
+                        ->icon('heroicon-o-trash'),
                 ]),
             ]);
     }
