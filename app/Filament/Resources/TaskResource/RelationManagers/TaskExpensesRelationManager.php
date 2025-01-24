@@ -43,7 +43,13 @@ class TaskExpensesRelationManager extends RelationManager
                     ->preserveFilenames()
                     ->maxSize(2048)
                     ->openable()
-                    ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png']),
+                    ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png'])
+                    ->deleteUploadedFileUsing(function ($file, $record) {
+                        if ($record && $record->file) {
+                            // Hapus file lama
+                            Storage::disk('nas')->delete($record->file);
+                        }
+                    }),
                 Forms\Components\RichEditor::make('description')
                     ->columnSpanFull(),
             ]);

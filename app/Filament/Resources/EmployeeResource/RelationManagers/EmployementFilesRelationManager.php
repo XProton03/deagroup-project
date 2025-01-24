@@ -59,6 +59,12 @@ class EmployementFilesRelationManager extends RelationManager
                         '4:3',
                         '1:1',
                     ])
+                    ->deleteUploadedFileUsing(function ($file, $record) {
+                        if ($record && $record->file) {
+                            // Hapus file lama
+                            Storage::disk('nas')->delete($record->file);
+                        }
+                    }),
             ]);
     }
 
