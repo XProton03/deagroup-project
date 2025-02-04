@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('task_number')->nullable();
             $table->foreignId('companies_id')->constrained('companies')->cascadeOnUpdate();
             $table->string('pic')->nullable();
-            $table->unsignedInteger('phone')->nullable();
+            $table->string('phone')->nullable();
             $table->text('short_description')->nullable();
             $table->text('job_description')->nullable();
             $table->date('schedule')->nullable();
